@@ -76,8 +76,6 @@ router.get("/companytypes", auth, (req, res) =>  new CompanyTypeController().Get
 router.get("/clients", auth, (req, res) =>  new ClientController().GetClients(req, res));
 router.post("/clients", auth, (req, res) =>  new ClientController().UpsertClient(req, res));
 
-
-
 router.post("/resetpassword", (req, res) =>  new PasswordChangeRequestController().AddPasswordChangeRequest(req, res));
 router.put("/verifypassword/:Id", (req, res) =>  new PasswordChangeRequestController().VerifyAndUpdatePassword(req, res));
 
