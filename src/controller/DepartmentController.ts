@@ -34,10 +34,10 @@ export class DepartmentController {
         return;
       }
 
-      const departmentMapper = new DepartmentMapper();
-      const mappedDepartments = departmentMapper.ModelToDto(departments);
+      // const departmentMapper = new DepartmentMapper();
+      // const mappedDepartments = departmentMapper.ModelToDto(departments);
 
-      res.status(200).json(mappedDepartments);
+      res.status(200).json(departments);
     } catch (err) {
       console.error("Error in GetDepartments:", err);
       res.status(500).json({ error: "Internal Server Error" });

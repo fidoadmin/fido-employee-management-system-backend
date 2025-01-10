@@ -40,3 +40,6 @@ export class DepartmentService {
     return result;
   }
 }
+
+
+console.log("hello")

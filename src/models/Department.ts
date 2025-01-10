@@ -11,6 +11,7 @@ DepartmentModel.init(
       autoIncrement: true,
       allowNull: false,
     },
+    
     guid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
