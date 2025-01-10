@@ -1,26 +1,25 @@
 export class RoleMapper {
+  ModelToDto(data: any[]) {
+    const mappedData = data.map((role) => {
+      const mappedBranch = {
+        ID: role.guid,
+        Name: role.name ? role.name : null,
+        Created: role.created ? role.created : null,
+        Modified: role.modified ? role.modified : null,
+        EntryPoint: role.entrypoint ? role.entrypoint : false,
+        Code: role.code ? role.code : false,
+      };
+      return mappedBranch;
+    });
+    return mappedData;
+  }
 
-    ModelToDto(data: any[]) {
-        const mappedData = data.map((data) => {
-            const mappeddata = {
-                Id: data.guid,
-                Name: data.name ? data.name : null,
-                Code: data.code ? data.code : null,
-                Created: data.created ? data.created : null,
-                Modified: data.modified ? data.modified : null,
-               
-            };
-            return mappeddata;
-        });
-        return mappedData;
-    }
-
-    DtoToModel(data: any) {
-        const mappeddata = {
-            roleguid: data.Id ? data.Id : null,
-            name: data.Name ? data.Name : null,
-            code: data.Code ? data.Code : null,
-        };
-        return mappeddata;
-    }
+  DtoToModel(role: any) {
+    const mappedBranch = {
+      guid: role.ID,
+      name: role.Name,
+      code: role.Code,
+    };
+    return mappedBranch;
+  }
 }

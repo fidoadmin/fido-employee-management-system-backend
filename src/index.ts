@@ -2,22 +2,13 @@ import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import config from "./config/index";
-
-import { AuthController } from "./middleware/AuthController";
-import { AuthenticationController } from "./controller/AuthenticationController";
-import { BranchController } from "./controller/BranchController";
-import { CategoryController } from "./controller/CategoryController";
-import { CompanyController } from "./controller/CompanyController";
-import { PasswordChangeRequestController } from "./controller/PasswordChangeRequestController";
-import { UserController } from "./controller/UserController";
-import { InventoryController } from "./controller/InventoryController";
-import { DashboardController } from "./controller/DashboardController";
-import { InventoryDescriptionController } from "./controller/InventoryDescriptionController";
-import { ReportController } from "./controller/ReportController";
-import { BarcodeController } from "./controller/BarcodeController";
 import { ClientController } from "./controller/ClientController";
-import { CompanyTypeController } from "./controller/CompanyTypeController";
+import { CompanyController } from "./controller/CompanyController";
+import { DepartmentController } from "./controller/DepartmentController";
 import { RoleController } from "./controller/RoleController";
+import { PositionController } from "./controller/PositionController";
+
+
 
 const sequelize = require("./connect/index");
 const app = express();
@@ -47,49 +38,75 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-function auth(req, res, next) {
-  new AuthController().CheckAccessToken(req, res, next);
-}
+router.get
 
 router.get("/ping", (req, res) => { res.send("Inventory Management System!");});
 
-router.post("/login", (req, res) =>  new AuthenticationController().Login(req, res));
-router.put("/logout", auth, (req, res) => new AuthenticationController().Logout(req, res));
+router.get('/clients',(req,res)=> new ClientController().GetClients(req,res))
+router.get('/client/:guid',(req,res)=>new ClientController().GetClient(req,res))
+router.delete('/client/:guid',(req,res)=>new ClientController().DeleteClient(req,res))
+router.post('/client',(req,res)=>new ClientController().UpsertClient(req,res))
+router.get("/companies", (req, res) => new
+  CompanyController().GetCompanies(req, res)
+);
+router.get("/company/:guid", (req, res) =>
+  new
+CompanyController().GetCompany(req, res)
+);
+router.post("/company", (req, res) =>
+  new
+  CompanyController().UpsertCompany(req, res)
+);
 
+// Department Routes
+router.get("/departments", (req, res) =>
+ new DepartmentController().GetDepartments(req, res)
+);
+router.post("/department", (req, res) =>
+  new DepartmentController().UpsertDepartment(req, res)
+);
+router.delete("/department/:guid", (req, res) =>
+  new DepartmentController().DeleteDepartment(req, res)
+);
+router.get("/department/:guid", (req, res) =>
+  new DepartmentController().GetDepartment(req, res)
+);
 
-router.get("/branches", auth, (req, res) =>  new BranchController().GetBranches(req, res));
-router.post("/branches", auth, (req, res) =>  new BranchController().UpsertBranch(req, res));
-router.delete("/branches/:Id", auth, (req, res) =>  new BranchController().DeleteBranch(req, res));
+// FOR ROLES
 
-router.get("/categories", auth, (req, res) =>  new CategoryController().GetCategories(req, res));
-router.post("/categories", auth, (req, res) =>  new CategoryController().UpsertCategory(req, res));
-router.delete("/categories/:Id", auth, (req, res) => new CategoryController().DeleteCategory(req, res));
+router.get("/roles", (req, res) => new RoleController().GetRoles(req, res));
+router.post("/role", (req, res) => new RoleController().UpsertRole(req, res));
+router.delete("/role/:guid", (req, res) => new RoleController().DeleteRole(req, res));
+router.get("/role/:guid", (req, res) => new RoleController().GetRole(req, res));
+// Company Routes
+// router.post("/company", (req, res) =>
+//   companyController.UpsertCompany(req, res)
+// );
+// router.get("/companies", (req, res) =>
+//   companyController.GetCompanies(req, res)
+// );
+// router.delete("/company/:guid", (req, res) =>
+//   companyController.DeleteCompany(req, res)
+// );
+// router.get("/company/:guid", (req, res) =>
+//   companyController.GetCompany(req, res)
+// );
 
+// Positions Routes
+router.get("/positions", (req, res) =>
+  new PositionController().GetPositions(req, res)
+);
+router.post("/position", (req, res) =>
+  new PositionController().UpsertPosition(req, res)
+);
+router.get("/position/:guid", (req, res) =>
+  new PositionController().GetPosition(req, res)
+); // Correct route path
 
-router.get("/companies", auth, (req, res) =>  new CompanyController().GetCompanies(req, res));
-router.post("/companies", auth, (req, res) =>  new CompanyController().UpsertCompany(req, res));
-router.delete("/companies/:Id", auth, (req, res) => new CompanyController().DeleteCompany(req, res));
+router.delete("/position/:guid", (req, res) =>
+  new PositionController().DeletePosition(req, res)
+); // Correct route path
 
-router.get("/companytypes", auth, (req, res) =>  new CompanyTypeController().GetCompanyTypes(req, res));
-
-
-router.get("/clients", auth, (req, res) =>  new ClientController().GetClients(req, res));
-router.post("/clients", auth, (req, res) =>  new ClientController().UpsertClient(req, res));
-
-router.post("/resetpassword", (req, res) =>  new PasswordChangeRequestController().AddPasswordChangeRequest(req, res));
-router.put("/verifypassword/:Id", (req, res) =>  new PasswordChangeRequestController().VerifyAndUpdatePassword(req, res));
-
-
-
-router.get("/roles", auth, (req, res) =>  new RoleController().GetRoles(req, res));
-router.post("/roles", auth, (req, res) =>  new RoleController().UpsertRole(req, res));
-router.delete("/roles/:Id", auth, (req, res) =>  new RoleController().DeleteRole(req, res));
-
-router.get("/users",  (req, res) =>  new UserController().GetUsers(req, res));
-router.post("/users",  (req, res) =>  new UserController().UpsertUser(req, res));
-router.delete("/users/:Id",  (req, res) =>  new UserController().DeleteUser(req, res));
-router.get("/users/profile/:Id",  (req, res) =>  new UserController().GetUserProfile(req, res));
-router.post("/users/profile/changepassword",  (req, res) =>  new UserController().UpdatePassword(req, res));
 
 
 

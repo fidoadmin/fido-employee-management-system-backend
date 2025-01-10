@@ -1,67 +1,101 @@
-import { Logger } from "./../logger/logger";
-import { CommonService } from './../common/common';
-import { ErrorMessageModel } from '../models/ErrorMessages';
-import { ClientService } from "../services/ClientService";
 import { ClientMapper } from "../mapper/ClientMapper";
-const commonService = new CommonService();
+import { ClientService } from "../services/ClientServices";
+import { Request, Response } from "express";
 
 export class ClientController {
-
-    async GetClients(req, res) {
-        try {
-            const page = req.query.Page ? parseInt(req.query.Page) : 1;
-            const limit = req.query.Limit?parseInt(req.query.Limit):10;
-            const pageoffset = (page - 1) * limit;
-            const pagelimit = limit;
-            const varparams = {
-                pageoffset: pageoffset,
-                pagelimit: pagelimit,
-                search: req.query.Search ? req.query.Search : '',
-                sortby: req.query.SortBy ? req.query.SortBy : 'modified',
-                sortorder: req.query.SortOrder ? req.query.SortOrder : 'desc',
-            };
-
-            const clientService = new ClientService();
-            const results = await clientService.LoadClients(varparams);
-            res.header("X-Page-TotalCount", results.length > 0 ? results[0].total : 0);
-
-            const clientMapper = new ClientMapper();
-            const mapperresults = clientMapper.ModelToDto(results);
-
-            res.status(200).json(mapperresults);
-
-        } catch (err) {
-            new Logger().Error('GetClients', err.toString(),  req.userId,req.clientId);
-            const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500 });
-            res.status(500).json({error: result.errormessage});
-        }
+  async GetClients(req: Request, res: Response): Promise<void> {
+    try {
+      const clientService = new ClientService();
+      const clients = await clientService.GetClients();
+      if (clients.length === 0) {
+        res.status(404).json({ Message: "No clients" });
+        return;
+      }
+      res.status(200).json(clients);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json("Internal Server Error");
     }
+  }
 
-    async UpsertClient(req, res) {
-       
-        try {
-            const clientdata = req.body;
+  async GetClient(req: Request, res: Response): Promise<void> {
+    try {
+      const clientGUID = req.params.guid;
+      if (!clientGUID || clientGUID.trim() === "") {
+        res.status(400).json({ message: "Guid is required" });
+        return;
+      }
 
-            const clientMapper = new ClientMapper();
-            const mappedData = clientMapper.DtoToModel(clientdata,req.userId);
+      const clientService = new ClientService();
+      const clientData = await clientService.GetClient(clientGUID);
 
-            const clientService = new ClientService();
-            const result = await clientService.UpsertClient(mappedData);
+      if (!clientData) {
+        res.status(404).json({ message: "Clinets not found" });
+        return;
+      }
 
-            if (result[0].result == 'Duplicate client name') {
-                const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4223 });
-                res.status(409).json({error: result.errormessage});
-                return;
-            };
+      const clientMapper = new ClientMapper();
+      const mappedClient = clientMapper.ModelToDto(clientData);
+      res.status(200).json(mappedClient);
+    } catch (err) {
+      console.error(err);
+      res
+        .status(500)
+        .json({ Message: "Internal Server Error from GET client" });
+    }
+  }
 
-            res.status(200).json({Id:result[0].result});
+  async UpsertClient(req:Request,res:Response):Promise<void>{
+    try{
+      const clientData =req.body
+      if (!clientData.Name) {
+        res.status(422).json({ error: "Client Name is required" });
+        return;
+      }
+      const clientService = new ClientService()
+      const clientMapper = new ClientMapper()
+      const mappedClient = clientMapper.DtoToModel(clientData);
+      const result = await clientService.UpsertClient(mappedClient)
+      if (!result) {
+        console.error("Error: No result returned from upsertClient");
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
 
-        } catch (err) {
-            new Logger().Error('UpsertClient', err.toString(),  req.userId,req.clientId);
-            const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500 });
-            return res.status(500).json({error: result.errormessage});
-            
-        }
-    };
+      // Handle different result scenarios (error or success)
+      if (result.error) {
+        res.status(400).json(result); // Return error response
+      } else {
+        res.status(200).json(result); // Return success response with the result
+      }
+      
+    }
+    catch(error){
+      console.error(error)
+      res.status(500).json("Internal Server Error from UpsertCLient")
+    }
+  }
+
+
+
+  async DeleteClient(req: Request, res: Response): Promise<void> {
+    try {
+      const positionGUID = req.params.guid;
+      console.log(positionGUID);
+      const positionService = new ClientService();
+
+      const result = await positionService.DeleteClient(positionGUID);
+      if (result) {
+        res.status(200).json({ message: "Delted deleted successfully" });
+      } else {
+        res.status(404).json({ message: "client not found" });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+
+
 
 }
