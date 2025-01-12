@@ -1,15 +1,13 @@
 import { DepartmentMapper } from "./../mapper/DepartmentMapper";
-import { Request, Response } from "express";
 import { DepartmentService } from "../services/DepartmentServices";
 
 export class DepartmentController {
-  async GetDepartments(req: Request, res: Response): Promise<void> {
+  async GetDepartments(req , res)  {
     try {
       const page = req.query.Page ? parseInt(req.query.Page as string, 10) : 1;
       const limit = req.query.Limit
         ? parseInt(req.query.Limit as string, 10)
         : 10;
-      const companyId = req.query.CompanyId || null;
       const isEntryPoint = req.query.IsEntryPoint === "true" ? true : null;
       const pageOffset = (page - 1) * limit;
 
@@ -18,7 +16,6 @@ export class DepartmentController {
         pageLimit: limit,
         sortBy: req.query.varsortby?.toString() || "name",
         sortOrder: req.query.varsortorder?.toString().toUpperCase() || "ASC",
-        companyGuid: companyId,
         isEntryPoint,
         search: req.query.varsearch?.toString() || "",
       };
@@ -34,17 +31,17 @@ export class DepartmentController {
         return;
       }
 
-      // const departmentMapper = new DepartmentMapper();
-      // const mappedDepartments = departmentMapper.ModelToDto(departments);
+      const departmentMapper = new DepartmentMapper();
+      const mappedDepartments = departmentMapper.ModelToDto(departments);
 
-      res.status(200).json(departments);
+      res.status(200).json(mappedDepartments);
     } catch (err) {
       console.error("Error in GetDepartments:", err);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }
 
-  async DeleteDepartment(req: Request, res: Response): Promise<void> {
+  async DeleteDepartment(req , res)  {
     try {
       const departmentGUID = req.params.guid;
       console.log(departmentGUID);
@@ -63,11 +60,9 @@ export class DepartmentController {
   }
 
   //  GET DEPARTMENT
-  async GetDepartment(req: Request, res: Response): Promise<void> {
+  async GetDepartment(req , res)  {
     try {
-      console.log("Request Params:", req.params.guid);
       const departmentGUID = req.params.guid;
-      console.log("GUID:", departmentGUID);
       if (!departmentGUID || departmentGUID.trim() === "") {
         res.status(400).json({ message: "GUID is required" });
         return;
@@ -92,7 +87,7 @@ export class DepartmentController {
     }
   }
 
-  async UpsertDepartment(req: Request, res: Response): Promise<void> {
+  async UpsertDepartment(req , res)  {
     try {
       const departmentData = req.body;
       console.log(departmentData);

@@ -27,6 +27,7 @@ DepartmentModel.init(
       unique: true, 
     },
     created: {
+      
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
       allowNull: false,

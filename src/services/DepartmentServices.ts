@@ -3,7 +3,7 @@ import { DepartmentModel } from "../models/Department";
 const dbConnect = require("../connect/index");
 const Sequelize = require("sequelize");
 export class DepartmentService {
-  async GetAllDepartments(varparams: any): Promise<any> {
+  async GetAllDepartments(varparams: any){
     const query = `SELECT * FROM common.getdepartments(:varjsonparams);`;
     const result = await dbConnect.query(query, {
       replacements: { varjsonparams:  JSON.stringify(varparams) },
@@ -30,7 +30,7 @@ export class DepartmentService {
     return result;
   }
 
-  async DeleteDepartment(guid: string): Promise<boolean | null> {
+  async DeleteDepartment(guid: string) {
     const query = `SELECT common.deletedepartment(:vardepartmentguid) AS result`;
 
     const result = await dbConnect.query(query, {
