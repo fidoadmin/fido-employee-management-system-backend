@@ -12,10 +12,10 @@ export class DepartmentService {
     return result;
   }
 
-  async GetDepartment(guid: string) {
-    const query = `SELECT * FROM common.getdepartment(:varguid)`;
+  async GetDepartment(id: string) {
+    const query = `SELECT * FROM common.getdepartment(:varid)`;
     const result = await dbConnect.query(query, {
-      replacements: { varguid: guid },
+      replacements: { varid: id },
       type: Sequelize.QueryTypes.SELECT,
     });
     return result;
@@ -30,11 +30,11 @@ export class DepartmentService {
     return result;
   }
 
-  async DeleteDepartment(guid: string) {
-    const query = `SELECT common.deletedepartment(:vardepartmentguid) AS result`;
+  async DeleteDepartment(id: string) {
+    const query = `SELECT common.deletedepartment(:vardepartmentid) AS result`;
 
     const result = await dbConnect.query(query, {
-      replacements: { vardepartmentguid: guid },
+      replacements: { vardepartmentid: id },
       type: Sequelize.QueryTypes.SELECT,
     });
     return result;

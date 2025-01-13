@@ -2,22 +2,18 @@ import { DepartmentMapper } from "./../mapper/DepartmentMapper";
 import { DepartmentService } from "../services/DepartmentServices";
 
 export class DepartmentController {
-  async GetDepartments(req , res)  {
+  async GetDepartments(req, res) {
     try {
-      const page = req.query.Page ? parseInt(req.query.Page as string, 10) : 1;
-      const limit = req.query.Limit
-        ? parseInt(req.query.Limit as string, 10)
-        : 10;
-      const isEntryPoint = req.query.IsEntryPoint === "true" ? true : null;
+      const page = req.query.Page ? req.query.Page : 1;
+      const limit = req.query.Limit ? req.query.Limit : 10;
       const pageOffset = (page - 1) * limit;
-
+      const pageLimit = limit;
       const varparams: any = {
         pageOffset,
-        pageLimit: limit,
-        sortBy: req.query.varsortby?.toString() || "name",
-        sortOrder: req.query.varsortorder?.toString().toUpperCase() || "ASC",
-        isEntryPoint,
-        search: req.query.varsearch?.toString() || "",
+        pagelimit: pageLimit,
+        sortBy: req.query.varsortby ? req.query.varsortby : "name",
+        sortOrder: req.query.varsortorder ? req.query.varsortorder : "ASC",
+        search: req.query.varsearch ? req.query.varsearch : "",
       };
 
       const departmentService = new DepartmentService();
@@ -36,42 +32,40 @@ export class DepartmentController {
 
       res.status(200).json(mappedDepartments);
     } catch (err) {
-      console.error("Error in GetDepartments:", err);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }
 
-  async DeleteDepartment(req , res)  {
+  async DeleteDepartment(req, res) {
     try {
-      const departmentGUID = req.params.guid;
-      console.log(departmentGUID);
+      const departmentID = req.params.id;
+      console.log(departmentID);
       const departmentService = new DepartmentService();
 
-      const result = await departmentService.DeleteDepartment(departmentGUID);
+      const result = await departmentService.DeleteDepartment(departmentID);
       if (result) {
         res.status(200).json({ message: "Department deleted successfully" });
       } else {
         res.status(404).json({ message: "Department not found" });
       }
     } catch (err) {
-      console.error(err);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }
 
   //  GET DEPARTMENT
-  async GetDepartment(req , res)  {
+  async GetDepartment(req, res) {
     try {
-      const departmentGUID = req.params.guid;
-      if (!departmentGUID || departmentGUID.trim() === "") {
-        res.status(400).json({ message: "GUID is required" });
+      const departmentID = req.params.id;
+      if (!departmentID || departmentID.trim() === "") {
+        res.status(400).json({ message: "Id is required" });
         return;
       }
-      console.log("Received GUID:", departmentGUID);
+      console.log("Received Id:", departmentID);
 
       const departmentService = new DepartmentService();
       const departmentData = await departmentService.GetDepartment(
-        departmentGUID
+        departmentID
       );
       if (!departmentData || departmentData.length === 0) {
         res.status(404).json({ message: "Department not found" });
@@ -82,12 +76,11 @@ export class DepartmentController {
 
       res.status(200).json(mappedDepartment);
     } catch (err) {
-      console.error("Error fetching department:", err);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }
 
-  async UpsertDepartment(req , res)  {
+  async UpsertDepartment(req, res) {
     try {
       const departmentData = req.body;
       console.log(departmentData);
@@ -109,7 +102,6 @@ export class DepartmentController {
         res.status(200).json(result);
       }
     } catch (err) {
-      console.error("Error:", err);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }

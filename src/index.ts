@@ -45,32 +45,19 @@ router.get("/ping", (req, res) => { res.send("Inventory Management System!");});
 router.get('/clients',(req,res)=> new ClientController().GetClients(req,res))
 router.get('/client/:guid',(req,res)=>new ClientController().GetClient(req,res))
 router.delete('/client/:guid',(req,res)=>new ClientController().DeleteClient(req,res))
+
+
 router.post('/client',(req,res)=>new ClientController().UpsertClient(req,res))
-router.get("/companies", (req, res) => new
-  CompanyController().GetCompanies(req, res)
-);
-router.get("/company/:guid", (req, res) =>
-  new
-CompanyController().GetCompany(req, res)
-);
-router.post("/company", (req, res) =>
-  new
-  CompanyController().UpsertCompany(req, res)
-);
+router.get("/companies", (req, res) => new CompanyController().GetCompanies(req, res));
+router.get("/company/:guid", (req, res) =>new CompanyController().GetCompany(req, res));
+router.post("/company", (req, res) => new CompanyController().UpsertCompany(req, res))
+
 
 // Department Routes
-router.get("/departments", (req, res) =>
- new DepartmentController().GetDepartments(req, res)
-);
-router.post("/department", (req, res) =>
-  new DepartmentController().UpsertDepartment(req, res)
-);
-router.delete("/department/:guid", (req, res) =>
-  new DepartmentController().DeleteDepartment(req, res)
-);
-router.get("/department/:guid", (req, res) =>
-  new DepartmentController().GetDepartment(req, res)
-);
+router.get("/departments", (req, res) => new DepartmentController().GetDepartments(req, res))
+router.post("/department", (req, res) => new DepartmentController().UpsertDepartment(req, res));
+router.delete("/department/:id", (req, res) =>new DepartmentController().DeleteDepartment(req, res));
+router.get("/department/:guid", (req, res) => new DepartmentController().GetDepartment(req, res));
 
 // FOR ROLES
 
@@ -93,23 +80,10 @@ router.get("/role/:guid", (req, res) => new RoleController().GetRole(req, res));
 // );
 
 // Positions Routes
-router.get("/positions", (req, res) =>
-  new PositionController().GetPositions(req, res)
-);
-router.post("/position", (req, res) =>
-  new PositionController().UpsertPosition(req, res)
-);
-router.get("/position/:guid", (req, res) =>
-  new PositionController().GetPosition(req, res)
-); // Correct route path
-
-router.delete("/position/:guid", (req, res) =>
-  new PositionController().DeletePosition(req, res)
-); // Correct route path
-
-
-
-
+router.get("/positions", (req, res) =>new PositionController().GetPositions(req, res))
+router.post("/position", (req, res) =>new PositionController().UpsertPosition(req, res))
+router.get("/position/:guid", (req, res) =>new PositionController().GetPosition(req, res))
+router.delete("/position/:guid", (req, res) =>new PositionController().DeletePosition(req, res))
 
 app.use("/", router);
 
