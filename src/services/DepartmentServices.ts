@@ -3,7 +3,7 @@ import { DepartmentModel } from "../models/Department";
 const dbConnect = require("../connect/index");
 const Sequelize = require("sequelize");
 export class DepartmentService {
-  async GetAllDepartments(varparams: any){
+  async GetDepartments(varparams: any){
     const query = `SELECT * FROM common.getdepartments(:varjsonparams);`;
     const result = await dbConnect.query(query, {
       replacements: { varjsonparams:  JSON.stringify(varparams) },

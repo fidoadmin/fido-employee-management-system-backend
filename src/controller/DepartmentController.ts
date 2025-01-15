@@ -1,5 +1,9 @@
+import { ErrorMessage } from "./../models/ErrorMessages";
 import { DepartmentMapper } from "./../mapper/DepartmentMapper";
 import { DepartmentService } from "../services/DepartmentServices";
+import { Logger } from "../logger/logger";
+import { CommonService } from "../common/common";
+const commonService = new CommonService();
 
 export class DepartmentController {
   async GetDepartments(req, res) {
@@ -17,7 +21,7 @@ export class DepartmentController {
       };
 
       const departmentService = new DepartmentService();
-      const departments = await departmentService.GetAllDepartments(varparams);
+      const departments = await departmentService.GetDepartments(varparams);
 
       const totalCount = departments.length > 0 ? departments[0].total : 0;
       res.header("X-Page-TotalCount", totalCount.toString());
@@ -32,52 +36,79 @@ export class DepartmentController {
 
       res.status(200).json(mappedDepartments);
     } catch (err) {
-      res.status(500).json({ error: "Internal Server Error" });
+      await new Logger().Error("GetDepartments", err.toString(), req.userId);
+      const result = await commonService.GetModelData(ErrorMessage, {
+        statuscode: 500,
+      });
+
+      res.status(500).json({ error: result.errormessage });
     }
   }
 
   async DeleteDepartment(req, res) {
     try {
       const departmentID = req.params.id;
-      console.log(departmentID);
+
+      const isGuid: boolean = await commonService.isUUID(departmentID);
+      if (!isGuid) {
+        const result = await commonService.GetModelData(ErrorMessage, {
+          statuscode: 422,
+        });
+        res.status(500).json({ error: result.errormessage });
+      }
+
       const departmentService = new DepartmentService();
 
       const result = await departmentService.DeleteDepartment(departmentID);
-      if (result) {
-        res.status(200).json({ message: "Department deleted successfully" });
-      } else {
-        res.status(404).json({ message: "Department not found" });
-      }
+
+      res.status(200).json();
     } catch (err) {
-      res.status(500).json({ error: "Internal Server Error" });
+      new Logger().Error("DeleteDepartment", err.toString(), req.userId);
+      const result = await commonService.GetModelData(ErrorMessage, {
+        statuscode: 500,
+      });
+      res.status(500).json({ error: result.errormessage });
     }
   }
-
   //  GET DEPARTMENT
   async GetDepartment(req, res) {
     try {
       const departmentID = req.params.id;
+      
+      const isGuid: boolean = await commonService.isUUID(departmentID);
       if (!departmentID || departmentID.trim() === "") {
         res.status(400).json({ message: "Id is required" });
         return;
       }
-      console.log("Received Id:", departmentID);
 
+      if(!isGuid){
+        const result = await commonService.GetModelData(ErrorMessage, {
+          statuscode: 422,
+        });
+        res.status(422).json({ error: result.errormessage });
+      }
       const departmentService = new DepartmentService();
       const departmentData = await departmentService.GetDepartment(
         departmentID
       );
-      if (!departmentData || departmentData.length === 0) {
-        res.status(404).json({ message: "Department not found" });
-        return;
+    
+      if (departmentData.length <= 0) {
+        const result = await commonService.GetModelData(ErrorMessage, {
+          statuscode: 404,
+        });
+        res.status(404).json({ error: result.errormessage });
       }
+
       const departmentMapper = new DepartmentMapper();
       const mappedDepartment = departmentMapper.ModelToDto(departmentData);
 
-      res.status(200).json(mappedDepartment);
+      res.status(200).json(mappedDepartment[0]);
     } catch (err) {
-      res.status(500).json({ error: "Internal Server Error" });
-    }
+      new Logger().Error("GetDepartment", err.toString(), req.userId);
+      const result = await commonService.GetModelData(ErrorMessage, {
+        statuscode: 500,
+      });
+      res.status(500).json({ error: result.errormessage });    }
   }
 
   async UpsertDepartment(req, res) {
@@ -96,13 +127,21 @@ export class DepartmentController {
 
       const result = await departmentService.UpsertDepartment(mappedDepartment);
 
-      if (result.error) {
-        res.status(400).json(result);
-      } else {
-        res.status(200).json(result);
+      if (result[0].result == "Code duplicate") {
+        const result = await commonService.GetModelData(ErrorMessage, {
+          statuscode: 409,
+        });
+        res.status(409).json({ error: result.errormessage });
+        return;
       }
+
+      res.status(200).json({ id: result[0].result });
     } catch (err) {
-      res.status(500).json({ error: "Internal Server Error" });
+      new Logger().Error("Upsersert Department", err.toString(), req.userId);
+      const result = await commonService.GetModelData(ErrorMessage, {
+        statuscode: 500,
+      });
+      res.status(500).json({ error: result.errormessage });
     }
   }
 }
