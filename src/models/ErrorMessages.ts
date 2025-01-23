@@ -1,36 +1,47 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../connect/index');
 
-export class ErrorMessageModel extends Model {}
+export class ErrorMessage extends Model {}
 
-ErrorMessageModel.init({
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true
-  },
-  guid: {
-    type: DataTypes.STRING
-  },
-  statuscode: {
-    type: DataTypes.INTEGER,
-  },
-  errormessage: {
-    type: DataTypes.STRING,
-  },
-  created: {
-    type: DataTypes.STRING,
-  },
-  modified: {
-    type: DataTypes.STRING,
-  },
-  deleted: {
-    type: DataTypes.STRING,
-
-  },
+ErrorMessage.init({
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    guid: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: false,
+    },
+    statuscode: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unique: true, // Ensures uniqueness of statuscode
+    },
+    errormessage: {
+        type: DataTypes.STRING,
+        allowNull: true, // Allows null values if the field is optional
+    },
+    created: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+        allowNull: false,
+    },
+    modified: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    deleted: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 }, {
-  sequelize,
-  timestamps: false,
-  modelName: 'ErrorMessage',
-  schema: 'common',
-  tableName: 'errormessages',
+    sequelize,
+    timestamps: false,
+    modelName: 'errorMessage',
+    tableName: 'errormessages',
+    schema: 'common', // Specifies the schema for the table
 });
+
+module.exports = ErrorMessage;

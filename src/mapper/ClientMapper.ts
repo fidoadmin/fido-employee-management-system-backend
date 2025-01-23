@@ -1,26 +1,24 @@
 export class ClientMapper {
-
-    ModelToDto(data: any[]) {
-        const mappedData = data.map((data) => {
-            const mappeddata = {
-                Id: data.guid,
-                Name: data.name ? data.name : null,
-                Code: data.code ? data.code : null,
-                Created: data.created ? data.created : null,
-                Modified: data.modified ? data.modified : null,
-               
-            };
-            return mappeddata;
-        });
-        return mappedData;
-    }
-
-    DtoToModel(data: any,userId:string) {
-        const mappeddata = {
-            clientguid: data.Id ? data.Id : null,
-            name: data.Name ? data.Name : null,
-            code: data.Code ? data.Code : null,
-        };
-        return mappeddata;
-    }
+  ModelToDto(data: any[]) {
+    const mappedData = data.map((client) => {
+      const mappedBranch = {
+        ID: client.guid,
+        Name: client.name ? client.name : null,
+        Code: client.code ? client.code : false,
+        Created: client.created ? client.created : null,
+        Modified: client.modified ? client.modified : null,
+        EntryPoint: client.entrypoint ? client.entrypoint : false,
+      };
+      return mappedBranch;
+    });
+    return mappedData;
+  }
+  DtoToModel(client: any) {
+    const mappedBranch = {
+      guid: client.ID,
+      name: client.Name,
+      code: client.Code,
+    };
+    return mappedBranch;
+  }
 }

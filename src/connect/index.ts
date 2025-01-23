@@ -1,7 +1,8 @@
-const Sequelize = require('sequelize');
-const config = require('./../config/index').default;
+import { Sequelize } from 'sequelize'; 
+import config from '../config'; 
 
 const sequelize = new Sequelize(config.db.name, config.db.user, config.db.pass, {
+  
   host: config.db.host,
   logging: console.log,
   dialect: 'postgres',
@@ -13,5 +14,13 @@ const sequelize = new Sequelize(config.db.name, config.db.user, config.db.pass, 
   }
 });
 
-module.exports = sequelize
 
+sequelize.authenticate()
+  .then(() => {
+    console.log('Database connection has been established successfully.');
+  })
+  .catch((error) => {
+    console.error('Unable to connect to the database:', error);
+  });
+
+module.exports=sequelize

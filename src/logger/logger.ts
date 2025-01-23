@@ -1,8 +1,8 @@
-import { LogModel } from '.././models/Log';
+import { Log } from '../models/Log';
 import {CommonService} from './../common/common';
 
 export class Logger {
-    async Error(message, description, userId,clientId) {
+    async Error(message, description, userId) {
     
     try {
 
@@ -10,12 +10,11 @@ export class Logger {
             message:message,
             description:description,
             userid:userId,
-            clientid:clientId,
             severity:'E'
         };
         
         const commonService = new CommonService();
-        await commonService.AddModelData(LogModel,logToAdd);
+        await commonService.AddModelData(Log,logToAdd);
 
     } catch (error) {
       console.error('Error adding error log:', error);
@@ -23,7 +22,7 @@ export class Logger {
 
   };
 
-  async Info(message, description, userId,clientId) {
+  async Info(message, description, userId) {
 
     try {
 
@@ -31,12 +30,11 @@ export class Logger {
             message:message,
             description:description,
             userid:userId,
-            clientid:clientId,
             severity:'I'
         };
 
         const commonService = new CommonService();
-        await commonService.AddModelData(LogModel,logToAdd);
+        await commonService.AddModelData(Log,logToAdd);
 
     } catch (error) {
       console.error('Error adding error log:', error);
@@ -44,7 +42,7 @@ export class Logger {
 
   };
 
-  async Debug(message, description, userId,clientId) {
+  async Debug(message, description, userId) {
 
     try {
         
@@ -52,12 +50,11 @@ export class Logger {
             message:message,
             description:description,
             userid:userId,
-            clientid:clientId,
             severity:'D'
         };
 
         const commonService = new CommonService();
-        await commonService.AddModelData(LogModel,logToAdd);
+        await commonService.AddModelData(Log,logToAdd);
 
     } catch (error) {
       console.error('Error adding error log:', error);
