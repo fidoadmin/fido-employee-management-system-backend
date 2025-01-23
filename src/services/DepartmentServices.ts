@@ -3,34 +3,26 @@ import { DepartmentModel } from "../models/Department";
 const dbConnect = require("../connect/index");
 const Sequelize = require("sequelize");
 export class DepartmentService {
-  async GetDepartments(varparams: any){
+
+async GetDepartments(varparams: any) {
     const query = `SELECT * FROM common.getdepartments(:varjsonparams);`;
     const result = await dbConnect.query(query, {
-      replacements: { varjsonparams:  JSON.stringify(varparams) },
-            type: Sequelize.QueryTypes.SELECT,
-    });
-    return result;
-  }
-
-  async GetDepartment(id: string) {
-    const query = `SELECT * FROM common.getdepartment(:varid)`;
-    const result = await dbConnect.query(query, {
-      replacements: { varid: id },
+      replacements: { varjsonparams: JSON.stringify(varparams) },
       type: Sequelize.QueryTypes.SELECT,
     });
     return result;
   }
 
-  async UpsertDepartment(departmentData: any) {
-    const query = `SELECT * FROM common.upsertdepartment(:varjsondata)`; 
+async UpsertDepartment(departmentData: any) {
+    const query = `SELECT * FROM common.upsertdepartment(:varjsondata)`;
     const result = await dbConnect.query(query, {
-      replacements: { varjsondata: JSON.stringify(departmentData) }, 
+      replacements: { varjsondata: JSON.stringify(departmentData) },
       type: Sequelize.QueryTypes.SELECT,
     });
     return result;
   }
-
-  async DeleteDepartment(id: string) {
+  
+async DeleteDepartment(id: string) {
     const query = `SELECT common.deletedepartment(:vardepartmentid) AS result`;
 
     const result = await dbConnect.query(query, {
@@ -40,6 +32,3 @@ export class DepartmentService {
     return result;
   }
 }
-
-
-console.log("hello")

@@ -17,7 +17,7 @@ export class DepartmentMapper {
 
   DtoToModel(department: any) {
     const mappedBranch = {
-      guid: department.ID,
+      guid: department.Id,
       name: department.Name,
       code:department.Code
     };
