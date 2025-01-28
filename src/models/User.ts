@@ -9,9 +9,15 @@ UserModel.init({
     primaryKey: true,
     autoIncrement: true,
   },
+
   guid: {
     type: DataTypes.UUID,
     allowNull: false,
+  },
+  clientid:{
+    type:DataTypes.INTEGER,
+    allowNull:true,
+
   },
   firstname: {
     type: DataTypes.STRING,
@@ -37,10 +43,7 @@ UserModel.init({
     type: DataTypes.STRING,
     allowNull: false,
   },
-  clientid: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
+
   created: {
     type: DataTypes.STRING,
   },
@@ -55,5 +58,5 @@ UserModel.init({
   timestamps: false,
   modelName: 'User',
   schema: 'common',
-  tableName:'users'
+  tableName:'employees'
 });

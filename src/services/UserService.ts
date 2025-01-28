@@ -41,7 +41,7 @@ const commonService = new CommonService();
             type: Sequelize.QueryTypes.SELECT
         });
         return result;
-    };
+    }; 
 
     async GetAuthkeyDetail(authkey){
         const userData = await commonService.GetModelData(UserLoginInfoModel,{guid:authkey});

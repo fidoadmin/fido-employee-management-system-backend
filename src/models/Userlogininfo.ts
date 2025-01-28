@@ -17,10 +17,7 @@ UserLoginInfoModel.init({
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  clientid: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
+
   loggedin: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -46,6 +43,7 @@ UserLoginInfoModel.init({
   sequelize,
   timestamps: false,
   modelName: 'UserLoginInfo',
-  schema: 'common',
-  tableName:'userlogininfo'
+  tableName:'userlogininfo',
+  schema: 'common'
 });
+  

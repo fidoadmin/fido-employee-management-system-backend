@@ -1,7 +1,6 @@
 import { RoleService } from "./../services/RoleServices";
 import { RoleMapper } from "../mapper/RoleMapper";
-import { Request, Response } from "express";
-import { PositionMapper } from "../mapper/PositionMapper";
+
 import { Logger } from "../logger/logger";
 import { ErrorMessageModel } from "../models/ErrorMessages";
 import { CommonService } from "../common/common";
@@ -29,61 +28,58 @@ export class RoleController {
       const totalCount = roles.length > 0 ? roles[0].total : 0;
       res.header("X-Page-TotalCount", totalCount.toString());
 
-      if (roles.length === 0) {
-        res.status(404).json({ Message: "No Positionos" });
-      }
       const roleMapper = new RoleMapper();
       const mappedroles = roleMapper.ModelToDto(roles);
-      res.status(200).json(mappedroles);
-    } catch (err) {
-      await new Logger().Error("GetDepartments", err.toString(), 1, 1);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
+      return res.status(200).json(mappedroles);
 
-      res.status(500).json({ error: result.errormessage });
-    }
+    }catch (err) {
+          await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+          const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+          return res.status(500).json( result.errormessage );
+        }
   }
 
-  async UpsertRole(req: Request, res: Response): Promise<void> {
+  async UpsertRole(req,res): Promise<void> {
     try {
       const roleData = req.body;
       const roleService = new RoleService();
+
       const roleMapper = new RoleMapper();
       const mappedRole = roleMapper.DtoToModel(roleData);
+
       const result = await roleService.UpsertRole(mappedRole);
 
-      res.status(200).json({ Id: result });
-    } catch (err) {
-      new Logger().Error("Upsersert Department", err.toString(), 1, 2);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
-      res.status(500).json({ error: result.errormessage });
-    }
+              if (result[0].result == "Duplicate code") {
+               const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4092,});
+               return res.status(409).json( {error:result.errormessage});    
+              }
+
+     return res.status(200).json(result);
+    }  catch (err) {
+          await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+          const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+          return res.status(500).json( result.errormessage );
+        }
   }
 
   async DeleteRole(req, res) {
     try {
       const roleId = req.params.id;
-
       const isGuid: boolean = await commonService.isUUID(roleId);
+
       if (!isGuid) {
-        const result = await commonService.GetModelData(ErrorMessageModel, {
-          statuscode: 500,
-        });
-        console.log(result);
-        res.status(500).json({ error: result.errormessage });
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 404,});
+        res.status(404).json( result.errormessage );
       }
+
       const roleService = new RoleService();
       const result = await roleService.DeleteRole(roleId);
-      res.status(200).json(result);
+      return res.status(200).json(result);
+
     } catch (err) {
-      new Logger().Error("DeleteDepartment", err.toString(), 1, 1);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
-      res.status(500).json({ error: result.errormessage });
-    }
+          await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+          const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+          return res.status(500).json( result.errormessage );
+        }
   }
 }

@@ -1,9 +1,9 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../connect/index');
 
-export class Log extends Model {}
+export class LogModel extends Model {}
 
-Log.init({
+LogModel.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -16,23 +16,23 @@ Log.init({
     },
     message: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     severity: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
     },
     description: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
     },
     userid: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-    },
+        allowNull: true,
+    }, 
     clientid: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
     },
     created: {
         type: DataTypes.DATE,
@@ -50,9 +50,8 @@ Log.init({
 }, {
     sequelize,
     timestamps: false,
-    modelName: 'log',
+    modelName: 'Log',
     tableName: 'logs',
     schema: 'common', // Specify the schema
 });
 
-module.exports = Log;

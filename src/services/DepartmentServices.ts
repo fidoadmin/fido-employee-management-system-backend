@@ -31,4 +31,4 @@ async DeleteDepartment(id: string) {
     });
     return result;
   }
-}
+} 

@@ -9,7 +9,7 @@ export class UserMapper {
                 EmailAddress: users.emailaddress ? users.emailaddress : null,
                 PhoneNumber: users.phonenumber ? users.phonenumber : null,
                 StaffNumber:users.staffnumber ?users.staffnumber  :null,
-                ClientName:users.clientname?users.clientname :null,
+                // ClientName:users.clientname?users.clientname :null,
                 RoleName:users.rolename?users.rolename :null,
                 CompanyName:users.companyname?users.companyname :null,
                 Created: users.created ? users.created : null,
@@ -44,4 +44,4 @@ export class UserMapper {
         return mappedUser;
     }
 
-}
+} 

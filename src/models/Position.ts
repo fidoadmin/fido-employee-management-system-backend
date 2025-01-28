@@ -14,7 +14,7 @@ PositionModel.init({
         type: DataTypes.STRING(32),
         allowNull: false,
     },
-    name: {
+    name: { 
         type: DataTypes.STRING(255),
         allowNull: false,
     },
