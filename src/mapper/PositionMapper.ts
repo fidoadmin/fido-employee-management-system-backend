@@ -17,10 +17,11 @@ export class PositionMapper {
 
   DtoToModel(position: any) {
     const mappedBranch = {
-      guid: position.ID,
+      guid: position.Id,
       name: position.Name,
       code:position.Code
     };
     return mappedBranch;
   }
 }
+ 

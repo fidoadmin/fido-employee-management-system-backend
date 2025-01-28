@@ -8,7 +8,7 @@ EmployeeModel.init({
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-  },
+  }, 
   guid: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,

@@ -46,7 +46,7 @@ export class Logger {
       console.error('Error adding error log:', error);
     }
   };
-}
+} 
 
 
 

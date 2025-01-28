@@ -44,4 +44,4 @@ export class UserMapper {
         return mappedUser;
     }
 
-}
+} 

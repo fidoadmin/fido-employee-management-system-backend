@@ -24,22 +24,19 @@ export class DepartmentController {
       const departments = await departmentService.GetDepartments(varparams);
       const totalCount = departments.length > 0 ? departments[0].total : 0;
       res.header("X-Page-TotalCount", totalCount.toString());
-      if (departments.length === 0) {
-        res.status(404).json({ message: "No departments found" });
-        return;
-      }
+  
       const departmentMapper = new DepartmentMapper();
       const mappedDepartments = departmentMapper.ModelToDto(departments);
-      res.status(200).json(mappedDepartments);
-    } catch (err) {
-      await new Logger().Error("GetDepartments", err.toString(), 1, 1);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
 
-      res.status(500).json({ error: result.errormessage });
-    }
+      return res.status(200).json(mappedDepartments);
+    }  catch (error) {
+       new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+       return res.status(500).json(result.errormessage)
+         }
   }
+
+
   async UpsertDepartment(req, res) {
     try {
       const departmentData = req.body;
@@ -48,42 +45,38 @@ export class DepartmentController {
       const mappedDepartment = departmentMapper.DtoToModel(departmentData);
       const result = await departmentService.UpsertDepartment(mappedDepartment);
 
-      // if (result[0].result == "Code duplicate") {
-      //   const result = await commonService.GetModelData(ErrorMessageModel, {
-      //     statuscode: 409,
-      //   });
-      //   res.status(409).json({ error: result.errormessage });
-      //   return;
-      // }
-      res.status(200).json({ Id: result });
-    } catch (err) {
-      new Logger().Error("Upsersert Department", err.toString(), 1, 2);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
-      res.status(500).json({ error: result.errormessage });
-    }
+      if (result[0].result == "Duplicate code") {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4092,});
+       return res.status(409).json( {error:result.errormessage});
+      }
+         
+      return res.status(200).json(result);
+    }     catch (error) {
+          new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+          const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+          return res.status(500).json(result.errormessage) 
+        }
   }
+
+
   async DeleteDepartment(req, res) {
     try {
       const departmentID = req.params.id;
       const isGuid: boolean = await commonService.isUUID(departmentID);
+
       if (!isGuid) {
-        const result = await commonService.GetModelData(ErrorMessageModel, {
-          statuscode: 500,
-        });
-        console.log(result)
-        res.status(500).json({ error: result.errormessage });
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 404,});
+        return res.status(404).json(  result.errormessage );
       }
+
       const departmentService = new DepartmentService();
       const result = await departmentService.DeleteDepartment(departmentID);
-      res.status(200).json(result);
-    } catch (err) {
-      new Logger().Error("DeleteDepartment", err.toString(), 1, 1);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
-      res.status(500).json({ error: result.errormessage });
-    }
+
+      return res.status(200).json();
+    }   catch (error) {
+        new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+         return res.status(500).json(result.errormessage) 
+        }
   }
 }

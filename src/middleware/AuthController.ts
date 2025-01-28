@@ -2,7 +2,6 @@ import { CommonService } from '../common/common';
 import { UserLoginInfoModel } from '../models/Userlogininfo';
 import { Logger } from '../logger/logger';
 import { ErrorMessageModel } from '../models/ErrorMessages';
-// import { ErrorMessageModel } from '.././models/ErrorMessages'
 
 export class AuthController {
 
@@ -27,7 +26,7 @@ export class AuthController {
       next();
   } catch (error) {
     const logger = new Logger();
-    await logger.Error('Login', error.toString(), 1,2);
+    await logger.Error('Login', error.toString(), req.clientId, req.userId);
 
     const commonService = new CommonService();
     const result = await commonService.GetModelData(ErrorMessageModel,{statuscode:500});

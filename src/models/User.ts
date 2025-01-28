@@ -9,9 +9,15 @@ UserModel.init({
     primaryKey: true,
     autoIncrement: true,
   },
+
   guid: {
     type: DataTypes.UUID,
     allowNull: false,
+  },
+  clientid:{
+    type:DataTypes.INTEGER,
+    allowNull:true,
+
   },
   firstname: {
     type: DataTypes.STRING,

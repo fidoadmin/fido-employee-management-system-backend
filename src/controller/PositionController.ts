@@ -6,57 +6,59 @@ import { CommonService } from "../common/common";
 const commonService = new CommonService();
 
 export class PositionController {
-  async GetPositions(req, res) {
-    try {
-      const page = req.query.Page ? req.query.Page : 1;
-      const limit = req.query.Limit ? req.query.Limit : 10;
-      const pageOffset = (page - 1) * limit;
-      const pageLimit = limit;
-      const varparams: any = {
-        pageOffset,
-        pagelimit: pageLimit,
-        sortBy: req.query.varsortby ? req.query.varsortby : "name",
-        sortOrder: req.query.varsortorder ? req.query.varsortorder : "asc",
-        search: req.query.varsearch ? req.query.varsearch : "",
-      };
-      const positionService = new PositionService();
-      const positionMapper = new PositionMapper();
-      const positions = await positionService.GetPositions(varparams);
-      const mappedPosition = positionMapper.ModelToDto(positions);
 
-      if (positions.length === 0) {
-        res.status(404).json({ Message: "No positions " });
+   async GetPositions(req, res) {
+  
+      try {
+        const page = req.query.Page ? req.query.Page : 1;
+        const limit = req.query.Limit ? req.query.Limit : 10;
+        const pageOffset = (page - 1) * limit;
+        const pageLimit = limit;
+        const varparams: any = {
+          pageOffset,
+          pagelimit: pageLimit,
+          sortBy: req.query.varsortby ? req.query.varsortby : "name",
+          sortOrder: req.query.varsortorder ? req.query.varsortorder : "asc",
+          search: req.query.varsearch ? req.query.varsearch : "",
+        };
+  
+        const positionService = new PositionService();
+        const positions = await positionService.GetPositions(varparams);
+  
+        const totalCount = positions.length > 0 ? positions[0].total :0;
+        res.header("X-Page-TotalCount", totalCount.toString());
+        
+        const clientMapper = new PositionMapper();
+        const mappedClient = clientMapper.ModelToDto(positions);
+  
+        return res.status(200).json(mappedClient);
+        
+      } catch (err) {
+        await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+        return res.status(500).json( result.errormessage );
       }
-      res.status(200).json(mappedPosition);
-    } catch (err) {
-      await new Logger().Error("GetDepartments", err.toString(), 1, 1);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
-
-      res.status(500).json({ error: result.errormessage });
     }
-  }
 
   async UpsertPosition(req, res) {
     try {
       const positionData = req.body;
-
       const positionService = new PositionService();
       const positionMapper = new PositionMapper();
       const mappedPosition = positionMapper.DtoToModel(positionData);
 
       const result = await positionService.UpsertPosition(mappedPosition);
 
-      // Check if result is undefined or error exists in result
+           if (result[0].result == "Duplicate code") {
+               const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4092,});
+               return res.status(409).json( {error:result.errormessage});    
+            }
 
-      res.status(200).json({ Id: result });
+      return res.status(200).json(result);
     } catch (err) {
-      new Logger().Error("Upsersert Department", err.toString(), 1, 2);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
-      res.status(500).json({ error: result.errormessage });
+      await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+      return res.status(500).json( result.errormessage );
     }
   }
 
@@ -64,23 +66,20 @@ export class PositionController {
     try {
       const positionGUID = req.params.id;
       const isGuid: boolean = await commonService.isUUID(positionGUID);
-      if (!isGuid) {
-        const result = await commonService.GetModelData(ErrorMessageModel, {
-          statuscode: 500,
-        });
-        console.log(result);
-        res.status(500).json({ error: result.errormessage });
-      }
-      const positionService = new PositionService();
 
+      if (!isGuid) {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 404,});
+        res.status(404).json( result.errormessage );
+      }
+
+      const positionService = new PositionService();
       const result = await positionService.DeletePosition(positionGUID);
-      res.status(200).json(result);
+
+      return res.status(200).json(result);
     } catch (err) {
-      new Logger().Error("DeleteDepartment", err.toString(), 1, 1);
-      const result = await commonService.GetModelData(ErrorMessageModel, {
-        statuscode: 500,
-      });
-      res.status(500).json({ error: result.errormessage });
+      await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+      return res.status(500).json( result.errormessage );
     }
-  }
-}
+
+}}

@@ -24,3 +24,4 @@ export class DepartmentMapper {
     return mappedBranch;
   }
 }
+ 

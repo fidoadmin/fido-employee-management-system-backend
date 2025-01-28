@@ -6,7 +6,6 @@ export class ClientService {
     const query = `Select * FROM common.getclients(:varjsonparams)`;
     const result = await dbConnect.query(query, {
       replacements: { varjsonparams: JSON.stringify(varparams) },
-
       type: Sequelize.QueryTypes.SELECT,
     });
     return result;

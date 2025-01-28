@@ -2,7 +2,8 @@ export class AuthenticationMapper {
   ModelToDTO(data: any,source:any) {
       const mappedLogin = {
           userid: data.id,
-          // companyid: data.companyid,
+          companyid: data.companyid,
+          clientid:data.clientid,
           source: source,
           operation :'insert'
 

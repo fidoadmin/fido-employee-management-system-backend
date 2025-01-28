@@ -46,3 +46,4 @@ UserLoginInfoModel.init({
   tableName:'userlogininfo',
   schema: 'common'
 });
+  

@@ -43,7 +43,7 @@ router.get("/hello", (req, res) => {
 
 
 function auth(req, res, next) {
-  new AuthController().CheckAccessToken(req, res, next);
+new AuthController().CheckAccessToken(req, res, next);
 }
 
 
@@ -51,72 +51,32 @@ function auth(req, res, next) {
 router.post('/login',(req,res)=>new AuthenticationController().Login(req,res))
 router.put('/logout',(req,res)=>new AuthenticationController().Logout(req,res))
 
+// Clients
+router.get("/clients", auth,(req, res) =>  new ClientController().GetClients(req, res));
+router.post("/client",auth, (req, res) =>new ClientController().UpsertClient(req, res));
+router.delete("/client/:id",auth,(req,res)=>new ClientController().DeleteClient(req,res))
 
-router.get("/clients", auth,(req, res) =>
-  new ClientController().GetClients(req, res)
-);
-
-router.delete("/client/:id",auth, (req, res) =>
-  new ClientController().DeleteClient(req, res)
-);
-
-router.post("/client",auth, (req, res) =>
-  new ClientController().UpsertClient(req, res)
-);
-router.get("/companies", (req, res) =>
-  new CompanyController().GetCompanies(req, res)
-);
-
-router.post("/company", (req, res) =>
-  new CompanyController().UpsertCompany(req, res)
-);
+// company
+router.get("/companies",auth, (req, res) =>new CompanyController().GetCompanies(req, res));
+router.post("/company", auth,(req, res) =>new CompanyController().UpsertCompany(req, res));
 
 // Department Routes
-router.get("/departments", (req, res) =>
-  new DepartmentController().GetDepartments(req, res)
-);
-router.post("/department", (req, res) =>
-  new DepartmentController().UpsertDepartment(req, res)
-);
-router.delete("/department/:id", (req, res) =>
-  new DepartmentController().DeleteDepartment(req, res)
-);
+router.get("/departments",auth, (req, res) => new DepartmentController().GetDepartments(req, res));
+router.post("/department",auth, (req, res) =>new DepartmentController().UpsertDepartment(req, res));
+router.delete("/department/:id", auth,(req, res) =>new DepartmentController().DeleteDepartment(req, res));
 
 
 
 // FOR ROLES
+router.get("/roles",auth, (req, res) => new RoleController().GetRoles(req, res));
+router.post("/role",auth, (req, res) => new RoleController().UpsertRole(req, res));
+router.delete("/role/:id", auth,(req, res) =>new RoleController().DeleteRole(req, res));
 
-router.get("/roles", (req, res) => new RoleController().GetRoles(req, res));
-router.post("/role", (req, res) => new RoleController().UpsertRole(req, res));
-router.delete("/role/:id", (req, res) =>
-  new RoleController().DeleteRole(req, res)
-);
-
-// Company Routes
-// router.post("/company", (req, res) =>
-//   companyController.UpsertCompany(req, res)
-// );
-// router.get("/companies", (req, res) =>
-//   companyController.GetCompanies(req, res)
-// );
-// router.delete("/company/:guid", (req, res) =>
-//   companyController.DeleteCompany(req, res)
-// );
-// router.get("/company/:guid", (req, res) =>
-//   companyController.GetCompany(req, res)
-// );
 
 // Positions Routes
-router.get("/positions", (req, res) =>
-  new PositionController().GetPositions(req, res)
-);
-router.post("/position", (req, res) =>
-  new PositionController().UpsertPosition(req, res)
-);
-
-router.delete("/position/:id", (req, res) =>
-  new PositionController().DeletePosition(req, res)
-);
+router.get("/positions",auth, (req, res) =>new PositionController().GetPositions(req, res));
+router.post("/position", auth,(req, res) =>new PositionController().UpsertPosition(req, res));
+router.delete("/position/:id",auth, (req, res) =>new PositionController().DeletePosition(req, res));
 
 app.use("/", router);
 

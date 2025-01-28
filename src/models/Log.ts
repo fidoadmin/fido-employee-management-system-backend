@@ -29,7 +29,7 @@ LogModel.init({
     userid: {
         type: DataTypes.INTEGER,
         allowNull: true,
-    },
+    }, 
     clientid: {
         type: DataTypes.INTEGER,
         allowNull: true,
