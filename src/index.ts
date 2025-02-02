@@ -53,6 +53,7 @@ router.put('/logout',(req,res)=>new AuthenticationController().Logout(req,res))
 
 // Clients
 router.get("/clients", auth,(req, res) =>  new ClientController().GetClients(req, res));
+router.get("/clients", auth,(req, res) =>  new ClientController().GetClients(req, res));
 router.post("/client",auth, (req, res) =>new ClientController().UpsertClient(req, res));
 router.delete("/client/:id",auth,(req,res)=>new ClientController().DeleteClient(req,res))
 
@@ -61,9 +62,11 @@ router.get("/companies",auth, (req, res) =>new CompanyController().GetCompanies(
 router.post("/company", auth,(req, res) =>new CompanyController().UpsertCompany(req, res));
 
 // Department Routes
-router.get("/departments", (req, res) => new DepartmentController().GetDepartments(req, res))
-router.post("/department", (req, res) => new DepartmentController().UpsertDepartment(req, res));
-router.delete("/department/:id", (req, res) =>new DepartmentController().DeleteDepartment(req, res));
+router.get("/departments",auth, (req, res) => new DepartmentController().GetDepartments(req, res));
+router.post("/department",auth, (req, res) =>new DepartmentController().UpsertDepartment(req, res));
+router.delete("/department/:id", auth,(req, res) =>new DepartmentController().DeleteDepartment(req, res));
+
+
 
 // FOR ROLES
 router.get("/roles",auth, (req, res) => new RoleController().GetRoles(req, res));

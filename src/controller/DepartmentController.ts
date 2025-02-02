@@ -61,7 +61,7 @@ export class DepartmentController {
 
   async DeleteDepartment(req, res) {
     try {
-      const departmentID = req.params.id;
+      const departmentID = req.params.Id;
       const isGuid: boolean = await commonService.isUUID(departmentID);
 
       if (!isGuid) {
