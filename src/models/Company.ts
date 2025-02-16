@@ -35,9 +35,29 @@ CompanyModel.init({
         type: DataTypes.STRING,
         allowNull: true, // Can be null
     },
-    clientid: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+    clientname: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    province: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    district: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    locallevel: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    ward: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    code: {
+        type: DataTypes.STRING,
+        allowNull: true,
     },
     created: {
         type: DataTypes.DATE,

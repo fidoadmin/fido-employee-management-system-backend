@@ -2,7 +2,7 @@ const dbConnect = require("../connect/index");
 const Sequelize = require("sequelize");
 
 export class ClientService {
-  async GetClients(varparams: any): Promise<any> {
+  async GetClients(varparams: any) {
     const query = `Select * FROM common.getclients(:varjsonparams)`;
     const result = await dbConnect.query(query, {
       replacements: { varjsonparams: JSON.stringify(varparams) },
@@ -18,7 +18,7 @@ export class ClientService {
     });
     return result;
   }
-  async DeleteClient(guid: string): Promise<boolean | null> {
+  async DeleteClient(guid: string) {
     const query = `SELECT common.deleteclient(:varclientguid) `;
 
     const result = await dbConnect.query(query, {

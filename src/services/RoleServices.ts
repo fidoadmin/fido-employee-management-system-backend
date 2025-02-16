@@ -2,7 +2,7 @@ const dbConnect = require("../connect/index");
 import Sequelize = require("sequelize");
 
 export class RoleService {
-  async GetRoles(varparams: any): Promise<any> {
+  async GetRoles(varparams: any){
     const query = `Select * from common.getroles(:varjsonparams)`;
     const result = await dbConnect.query(query, {
       replacements: { varjsonparams: JSON.stringify(varparams) },
