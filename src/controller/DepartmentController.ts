@@ -20,8 +20,10 @@ export class DepartmentController {
         sortOrder: req.query.varsortorder ? req.query.varsortorder : "asc",
         search: req.query.varsearch ? req.query.varsearch : "",
       };
+
       const departmentService = new DepartmentService();
       const departments = await departmentService.GetDepartments(varparams);
+
       const totalCount = departments.length > 0 ? departments[0].total : 0;
       res.header("X-Page-TotalCount", totalCount.toString());
   
@@ -40,9 +42,12 @@ export class DepartmentController {
   async UpsertDepartment(req, res) {
     try {
       const departmentData = req.body;
-      const departmentService = new DepartmentService();
+
+      
       const departmentMapper = new DepartmentMapper();
       const mappedDepartment = departmentMapper.DtoToModel(departmentData);
+      
+      const departmentService = new DepartmentService();
       const result = await departmentService.UpsertDepartment(mappedDepartment);
 
       if (result[0].result == "Duplicate code") {
