@@ -1,120 +1,80 @@
-import { CompanyService } from './../services/CompanyServices';
+import { CompanyService } from "./../services/CompanyServices";
 import { Request, Response } from "express";
 import { CompanyMapper } from "../mapper/CompanyMapper";
+import { Logger } from "../logger/logger";
+import { ErrorMessageModel } from "../models/ErrorMessages";
+import { CommonService } from "../common/common";
+const commonService = new CommonService();
 
 export class CompanyController {
-
-
-  async GetCompanies(req: Request, res: Response): Promise<void> {
+  async GetCompanies(req, res) {
     try {
+      const page = req.query.Page ? req.query.Page : 1;
+      const limit = req.query.Limit ? req.query.Limit : 10;
+      const pageOffset = (page - 1) * limit;
+      const pageLimit = limit;
+      const varparams: any = {
+        pageOffset,
+        pagelimit: pageLimit,
+        sortBy: req.query.varsortby ? req.query.varsortby : "name",
+        sortOrder: req.query.varsortorder ? req.query.varsortorder : "asc",
+        search: req.query.varsearch ? req.query.varsearch : "",
+      };
       const companyService = new CompanyService();
-      const companies = await companyService.GetCompanies();
-  
-      if (companies.length === 0) {
-        res.status(404).json({ Message: "No companies" });
-        return; // Stop further execution
-      }
-  
-      res.status(200).json(companies);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ Error: "Internal Server Error" });
-    }
-  }
-  
-
-  // Get a single company by GUID
-  async GetCompany(req: Request, res: Response): Promise<void> {
-    try {
-      const companyGUID = req.params.guid;
-
-      // Validate GUID
-      if (!companyGUID || companyGUID.trim() === "") {
-        res.status(400).json({ message: "Guid is required" });
-        return;
-      }
-
-      const companyService = new CompanyService();
-      const companyData = await companyService.GetCompany(companyGUID);
-
-      // Check if company data is found
-      if (!companyData) {
-        res.status(404).json({ message: "Company not found" });
-        return;
-      }
+      const companies = await companyService.GetCompanies(varparams);
+      const totalCount = companies.length > 0 ? companies[0].total : 0;
+      res.header("X-Page-TotalCount", totalCount.toString());
 
       const companyMapper = new CompanyMapper();
-      const mappedCompany = companyMapper.ModelToDto(companyData);
-
-      // Return the mapped company data
-      res.status(200).json(mappedCompany);
+      const mappedCompany = companyMapper.ModelToDto(companies);
+      return res.status(200).json(mappedCompany);
     } catch (error) {
-      console.error("Error fetching company:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
+          new Logger().Error("Upsersert Company",error.toString(),req.clientId, req.userId);
+          const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+          res.status(500).json(result.errormessage) }
   }
 
-  // Upsert (create or update) a company
-  async UpsertCompany(req: Request, res: Response): Promise<void> {
+  async UpsertCompany(req, res) {
     try {
       const companyData = req.body;
-  
-      // Validate required fields
-      if (
-        !companyData.Name ||
-        !companyData.Address ||
-        !companyData.EmailAddress ||
-        !companyData.PhoneNumber ||
-        !companyData.PAN ||
-        !companyData.ClientId // Validate client ID
-      ) {
-        res.status(422).json({ error: "All fields are required, including ClientId." });
-        return;
-      }
-  
+
       const companyService = new CompanyService();
       const companyMapper = new CompanyMapper();
       const mappedCompany = companyMapper.DtoToModel(companyData);
-  
-      // Pass the mapped company data to the service
+
       const result = await companyService.UpsertCompany(mappedCompany);
-  
-      // Return the appropriate response
-      if (result.error) {
-        res.status(400).json(result); // Return error response
-      } else {
-        res.status(200).json(result); // Return success response
-      }
+        if (result[0].result == 'Duplicate code') {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4092 });
+        return res.status(409).json({error: result.errormessage});
+    };
+     return res.status(200).json(result);
     } catch (err) {
-      console.error("Error:", err);
-      res.status(500).json({ error: "Internal Server Error" });
+      new Logger().Error("Upsersert Department", err.toString(), req.userId, req.ClientId);
+      const result = await commonService.GetModelData(ErrorMessageModel, {
+        statuscode: 500,
+      });
+      res.status(500).json({ error: result.errormessage });
     }
   }
-  
 
-  // Delete a company by GUID
-  async DeleteCompany(req: Request, res: Response): Promise<void> {
+  async DeleteCompany(req, res): Promise<void> {
     try {
-      const companyGUID = req.params.guid;
+      const companyGUID = req.params.Id;
+      const isGuid: boolean = await commonService.isUUID(companyGUID);
 
-      // Validate GUID
-      if (!companyGUID || companyGUID.trim() === "") {
-        res.status(400).json({ message: "Guid is required" });
-        return;
+      if (!isGuid) {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 404,});
+       return res.status(404).json({ error: result.errormessage });
       }
 
       const companyService = new CompanyService();
       const result = await companyService.DeleteCompany(companyGUID);
 
-      // Return the appropriate response based on deletion result
-      if (result) {
-        res.status(200).json({ message: "Company deleted successfully" });
-      } else {
-        res.status(404).json({ message: "Company not found" });
-      }
+     return res.status(200).json(result);
     } catch (err) {
-      console.error("Error:", err);
-      res.status(500).json({ error: "Internal Server Error" });
+      new Logger().Error("DeleteDepartment", err.toString(), req.userId, req.ClientId);
+      const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+      return res.status(500).json({ error: result.errormessage });
     }
   }
 }

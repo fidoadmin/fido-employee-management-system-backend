@@ -7,6 +7,7 @@ import { AuthenticationMapper } from "../mapper/AuthenticationMapper";
 import { UserLoginInfoModel } from "../models/Userlogininfo";
 import { UserModel } from "../models/User";
 var moment = require("moment");
+
 const commonService = new CommonService();
 
 export class AuthenticationController {
@@ -20,8 +21,9 @@ export class AuthenticationController {
         return  res.status(404).json({ error: result?.errormessage || "Email Address not found" });
       }
 
-      const match = loginBody.Password === userData.password;
-        if (match) {
+      const match = await bcrypt.compare(loginBody.Password, userData.password);
+      
+      if (match) {
         const authenticationMapper = new AuthenticationMapper();
         const mappedLogin = authenticationMapper.ModelToDTO( userData, loginBody.Source );
 

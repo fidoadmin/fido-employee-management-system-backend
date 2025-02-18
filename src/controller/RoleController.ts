@@ -6,8 +6,6 @@ import { ErrorMessageModel } from "../models/ErrorMessages";
 import { CommonService } from "../common/common";
 const commonService = new CommonService();
 export class RoleController {
-  static GetRole: any;
-
   async GetRoles(req, res) {
     try {
       const page = req.query.Page ? req.query.Page : 1;
