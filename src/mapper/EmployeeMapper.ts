@@ -13,6 +13,7 @@ export class EmployeeMapper {
         DepartmentName: employee.departmentname,
         PositionName: employee.positionname,
         RoleName: employee.rolename,
+        CompanyName:employee.companyname,
         Created: employee.created ? employee.created : null,
         Modified: employee.modified ? employee.modified : null,
       };
@@ -34,6 +35,7 @@ export class EmployeeMapper {
       departmentid: employee.DepartmentName,
       positionid: employee.PositionName,
       roleid: employee.RoleName,
+      companyid:employee.CompanyName,
       created: employee.Created,
       modified: employee.Modified,
     };
