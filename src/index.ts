@@ -97,16 +97,11 @@ router.post("/leavetype",auth,(req,res)=>new LeaveTypeController().UpsertLeaveTy
 router.get("/leavetypes",auth,(req,res)=>new LeaveTypeController().GetLeaveTypes(req,res))
 router.delete('/leavetype/:Id',auth,(req,res)=>new LeaveTypeController().DeleteLeaveType(req,res))
 
-// Company 
-// router.get("/companies",auth,(req,res)=>new CompanyController().UpsertCompany(req,res))
-// router.post("/company",auth,(req,res)=>new CompanyController().UpsertCompany(req,res))
 
 // Company Holiday
 router.post('/companyholiday',auth,(req,res)=>new CompanyHolidayController().UpsertCompanyHoliday(req,res))
 router.get('/companyholidays',auth,(req,res) => new CompanyHolidayController().GetCompanyHoliday(req,res))
 router.delete('/companyholiday/:Id',auth,(req,res)=> new CompanyHolidayController().DeleteCompanyHoliday(req,res))
-
-
 
 
 

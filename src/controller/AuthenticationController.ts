@@ -33,10 +33,12 @@ export class AuthenticationController {
         const results = authenticationMapper.LoginResponse(loginData, userData);
         return res.status(200).json(results);
       }
+
        else {
         const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 412,});
         return res.status(401) .json({ error: result?.errormessage || "Incorrect Password" });
       }
+
     } catch (err) {
       await new Logger().Error("Login",err.toString(),req.userId,req.clientId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500, });
@@ -46,7 +48,9 @@ export class AuthenticationController {
 
   async Logout(req, res) {
     try {
+
       const authKey = req.headers.authkey;
+      
       const updateResult = await commonService.UpdateModelData( UserLoginInfoModel,{ guid: authKey },
         {
           loggedout: moment().format("YYYY-MM-DD HH:mm:ss"),

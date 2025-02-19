@@ -1,5 +1,4 @@
 import { ErrorMessageModel } from "./../models/ErrorMessages";
-import { DepartmentMapper } from "./../mapper/DepartmentMapper";
 import { Logger } from "../logger/logger";
 import { CommonService } from "../common/common";
 import { EmployeeService } from "../services/EmployeeService";
@@ -22,50 +21,50 @@ export class EmployeeController {
         sortOrder: req.query.varsortorder ? req.query.varsortorder : "asc",
         search: req.query.varsearch ? req.query.varsearch : "",
       };
+
       const employeeService = new EmployeeService();
-      const departments = await employeeService.GetEmployees(varparams);
-      const totalCount = departments.length > 0 ? departments[0].total : 0;
+      const employees = await employeeService.GetEmployees(varparams);
+
+      const totalCount = employees.length > 0 ? employees[0].total : 0;
       res.header("X-Page-TotalCount", totalCount.toString());
   
-      const departmentMapper = new EmployeeMapper();
-      const mappedDepartments = departmentMapper.ModelToDto(departments);
+      const employeeMapper = new EmployeeMapper();
+      const mappedEmployee = employeeMapper.ModelToDto(employees);
 
-      return res.status(200).json(mappedDepartments);
+      return res.status(200).json(mappedEmployee);
     }  catch (error) {
-       new Logger().Error(" Employee",error.toString(),req.clientId, req.userId);
-       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-       return res.status(500).json(result.errormessage)
-         }
+      new Logger().Error(" Employee",error.toString(),req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+      return res.status(500).json(result.errormessage)
+    }
   }
-
 
   async UpsertEmployee(req, res) {
     try {
+
       const saltRounds =10;
-      const departmentData = req.body;
+      const employeeData = req.body;
       
-   if(departmentData.password){
-     departmentData.password = await bcrypt.hash(departmentData.password,saltRounds)
-     }
+     if(employeeData.password){
+       employeeData.password = await bcrypt.hash(employeeData.password,saltRounds)
+      }
+      const employeeMapper = new EmployeeMapper();
+      const mappedEmployee = employeeMapper.DtoToModel(employeeData);
 
-      const departmentService = new EmployeeService();
-    //   const departmentMapper = new DepartmentMapper();
-    //   const mappedDepartment = departmentMapper.DtoToModel(departmentData);
-      const result = await departmentService.UpsertEmployee(departmentData);
+      const employeeService = new EmployeeService();
+      const result = await employeeService.UpsertEmployee(mappedEmployee);
 
-
-
-    if (result[0].result == "Duplicate Email") {
+     if (result[0].result == "Duplicate Email") {
        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 409,});
-     return res.status(409).json( {error:result.errormessage});
+        return res.status(409).json( {error:result.errormessage});
       }
          
-    return res.status(200).json(result);
-    }     catch (error) {
-          new Logger().Error("Upsersert Employee",error.toString(),req.clientId, req.userId);
-          const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-          return res.status(500).json(result.errormessage) 
-        }
+      return res.status(200).json(result);
+    } catch (error) {
+     new Logger().Error("Upsersert Employee",error.toString(),req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+      return res.status(500).json(result.errormessage) 
+    }
   }
 
 
@@ -79,14 +78,15 @@ export class EmployeeController {
         return res.status(404).json(  result.errormessage );
       }
 
-      const departmentService = new EmployeeService();
-      const result = await departmentService.DeleteEmployee(employeeId);
+      const employeeService = new EmployeeService();
+      const result = await employeeService.DeleteEmployee(employeeId);
 
       return res.status(200).json();
-    }   catch (error) {
-        new Logger().Error("Delete Department",error.toString(),req.clientId, req.userId);
-        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-         return res.status(500).json(result.errormessage) 
-        }
+
+    }catch (error) {
+     new Logger().Error("Delete Employee",error.toString(),req.clientId, req.userId);
+     const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+     return res.status(500).json(result.errormessage) 
+    }
   }
 }

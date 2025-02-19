@@ -6,8 +6,7 @@ export class AuthenticationMapper {
           clientid:data.clientid,
           source: source,
           operation :'insert'
-
-      };
+       };
       return mappedLogin;
   }
 
@@ -20,8 +19,6 @@ export class AuthenticationMapper {
           LastName: userInfo.lastname,
           EmailAddress: userInfo.emailaddress,
           RoleId:null
-
-
       };
       return mapped;
   }

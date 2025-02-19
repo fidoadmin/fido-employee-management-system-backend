@@ -36,7 +36,7 @@ export class LeaveTypeController {
       new Logger().Error("List LeaveType",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
       res.status(500).json(result.errormessage)
-     }
+    }
   }
 
   async UpsertLeaveType(req, res) {
@@ -59,12 +59,13 @@ export class LeaveTypeController {
       new Logger().Error("Upsersert Leave Type",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
       res.status(500).json(result.errormessage)
-     }
+    }
   }
 
   async DeleteLeaveType(req, res) {
     try {
       const leaveTypeId = req.params.Id;
+
       const isGuid: boolean = await commonService.isUUID(leaveTypeId);
 
       if (!isGuid) {
@@ -80,6 +81,6 @@ export class LeaveTypeController {
       new Logger().Error("Delete Leave type",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
       res.status(500).json(result.errormessage)
-     }
-      }
+    }
+  }
 }

@@ -34,7 +34,7 @@ export class PositionController {
         return res.status(200).json(mappedClient);
         
       } catch (err) {
-        await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+        await new Logger().Error("GetPosition", err.toString(), req.clientId, req.userId);
         const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
         return res.status(500).json( result.errormessage );
       }
@@ -43,20 +43,22 @@ export class PositionController {
   async UpsertPosition(req, res) {
     try {
       const positionData = req.body;
-      const positionService = new PositionService();
+
       const positionMapper = new PositionMapper();
       const mappedPosition = positionMapper.DtoToModel(positionData);
-
+      
+      const positionService = new PositionService();
       const result = await positionService.UpsertPosition(mappedPosition);
 
-           if (result[0].result == "Duplicate code") {
-               const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4092,});
-               return res.status(409).json( {error:result.errormessage});    
-            }
+      if (result[0].result == "Duplicate code") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4092,});
+        return res.status(409).json( {error:result.errormessage});    
+     }
 
       return res.status(200).json(result);
+
     } catch (err) {
-      await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+      await new Logger().Error("Upsert Position", err.toString(), req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
       return res.status(500).json( result.errormessage );
     }
@@ -74,12 +76,13 @@ export class PositionController {
 
       const positionService = new PositionService();
       const result = await positionService.DeletePosition(positionGUID);
-
       return res.status(200).json(result);
+      
     } catch (err) {
-      await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
+      await new Logger().Error("Delete Position", err.toString(), req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
       return res.status(500).json( result.errormessage );
     }
 
-}}
+  }
+}

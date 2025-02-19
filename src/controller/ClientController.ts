@@ -30,11 +30,12 @@ export class ClientController {
       const mappedClient = clientMapper.ModelToDto(clients);
 
       return res.status(200).json(mappedClient);
+      
     } catch (error) {
-      new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+      new Logger().Error("Get Clients",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-      res.status(500).json(result.errormessage)
-     }
+      return  res.status(500).json(result.errormessage)
+    }
   }
 
   async UpsertClient(req, res) {
@@ -54,9 +55,9 @@ export class ClientController {
 
       return res.status(200).json(result);
     }catch (error) {
-      new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+      new Logger().Error("Upsersert Client",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-      res.status(500).json(result.errormessage)
+      return res.status(500).json(result.errormessage)
      }
   }
 
@@ -75,9 +76,9 @@ export class ClientController {
 
       return res.status(200).json();
     } catch (error) {
-      new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+      new Logger().Error("Delete Client",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-      res.status(500).json(result.errormessage)
+      return res.status(500).json(result.errormessage)
      }
       }
 }
