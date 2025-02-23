@@ -13,6 +13,8 @@ import { EmployeeController } from "./controller/EmployeeController";
 import { CalenderController } from "./controller/CalenderController";
 import { LeaveTypeController } from "./controller/LeaveTypeController";
 import { CompanyHolidayController } from "./controller/CompanyHolidayController";
+import { LeaveController } from "./controller/LeaveController";
+import { LeaveStatusController } from "./controller/LeaveStatusController";
 const sequelize = require("./connect/index");
 const app = express();
 const port = config.port || 7000;
@@ -22,8 +24,7 @@ app.use(bodyParser.json());
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "http://10.10.1.119:3004",
-    "http://10.10.1.117:3000",
+  
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -103,7 +104,12 @@ router.post('/companyholiday',auth,(req,res)=>new CompanyHolidayController().Ups
 router.get('/companyholidays',auth,(req,res) => new CompanyHolidayController().GetCompanyHoliday(req,res))
 router.delete('/companyholiday/:Id',auth,(req,res)=> new CompanyHolidayController().DeleteCompanyHoliday(req,res))
 
+// Leave
+router.get('/leaves',auth,(req,res)=>new LeaveController().GetLeaves(req,res))
+router.post('/leave',auth,(req,res)=>new LeaveController().UpsertLeave(req,res))
 
+// Leave Status
+router.get('/leavestatus',auth,(req,res)=>new LeaveStatusController().GetLeaveStatus(req,res))
 
 app.use("/", router);
 
