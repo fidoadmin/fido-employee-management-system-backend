@@ -13,12 +13,15 @@ export class AuthenticationMapper {
   
   LoginResponse(data: any,userInfo:any) {
       const mapped = {
-          UserId:userInfo.guid,
+        //   UserId:userInfo.guid,
           AuthKey: data.results,
           FirstName: userInfo.firstname,
           LastName: userInfo.lastname,
           EmailAddress: userInfo.emailaddress,
-          RoleId:null
+          RoleId:null,
+          MiddleName:userInfo.lastname,
+          EmployeeId:userInfo.guid,
+
       };
       return mapped;
   }

@@ -80,5 +80,5 @@ export class ClientController {
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
       return res.status(500).json(result.errormessage)
      }
-      }
+  }
 }

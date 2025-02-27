@@ -4,7 +4,7 @@ const Sequelize = require("sequelize");
 export class EmployeeService {
 
 async GetEmployees(varparams: any) {
-    const query = `SELECT * FROM common.getusers(:varjsonparams);`;
+    const query = `SELECT * FROM common.getemployees(:varjsonparams);`;
     const result = await dbConnect.query(query, {
       replacements: { varjsonparams: JSON.stringify(varparams) },
       type: Sequelize.QueryTypes.SELECT,
