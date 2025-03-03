@@ -66,7 +66,7 @@ export class PositionController {
 
   async DeletePosition(req, res) {
     try {
-      const positionGUID = req.params.id;
+      const positionGUID = req.params.Id;
       const isGuid: boolean = await commonService.isUUID(positionGUID);
 
       if (!isGuid) {

@@ -63,7 +63,7 @@ export class ClientController {
 
   async DeleteClient(req, res) {
     try {
-      const clientId = req.params.id;
+      const clientId = req.params.Id;
       const isGuid: boolean = await commonService.isUUID(clientId);
 
       if (!isGuid) {
@@ -80,5 +80,5 @@ export class ClientController {
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
       return res.status(500).json(result.errormessage)
      }
-      }
+  }
 }

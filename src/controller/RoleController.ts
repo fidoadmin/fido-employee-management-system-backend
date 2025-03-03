@@ -64,7 +64,7 @@ export class RoleController {
 
   async DeleteRole(req, res) {
    try {
-      const roleId = req.params.id;
+      const roleId = req.params.Id;
       const isGuid: boolean = await commonService.isUUID(roleId);
 
       if (!isGuid) {

@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import { AuthenticationMapper } from "../mapper/AuthenticationMapper";
 import { UserLoginInfoModel } from "../models/Userlogininfo";
 import { UserModel } from "../models/User";
+import EmployeeModel from "../models/Employee";
 var moment = require("moment");
 
 const commonService = new CommonService();
@@ -14,7 +15,7 @@ export class AuthenticationController {
   async Login(req, res) {
     try {
       const loginBody = req.body;
-      const userData = await commonService.GetModelData(UserModel, {emailaddress: loginBody.EmailAddress, });
+      const userData = await commonService.GetModelData(EmployeeModel, {emailaddress: loginBody.EmailAddress, });
 
       if (!userData) {
         const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4221,});

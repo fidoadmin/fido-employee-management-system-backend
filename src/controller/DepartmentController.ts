@@ -32,10 +32,10 @@ export class DepartmentController {
 
       return res.status(200).json(mappedDepartments);
     }  catch (error) {
-       new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
-       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-       return res.status(500).json(result.errormessage)
-         }
+      new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+      return res.status(500).json(result.errormessage)
+    }
   }
 
 
