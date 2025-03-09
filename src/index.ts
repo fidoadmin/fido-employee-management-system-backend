@@ -15,6 +15,8 @@ import { LeaveTypeController } from "./controller/LeaveTypeController";
 import { CompanyHolidayController } from "./controller/CompanyHolidayController";
 import { LeaveController } from "./controller/LeaveController";
 import { LeaveStatusController } from "./controller/LeaveStatusController";
+import { UserProfileController } from "./controller/UserProfileController";
+import { DropdownController } from "./controller/DropdownController";
 const sequelize = require("./connect/index");
 const app = express();
 const port = config.port || 7000;
@@ -57,7 +59,6 @@ router.put('/logout',(req,res)=>new AuthenticationController().Logout(req,res))
 
 // Clients
 router.get("/clients", auth,(req, res) =>  new ClientController().GetClients(req, res));
-router.get("/clients", auth,(req, res) =>  new ClientController().GetClients(req, res));
 router.post("/client",auth, (req, res) =>new ClientController().UpsertClient(req, res));
 router.delete("/client/:Id",auth,(req,res)=>new ClientController().DeleteClient(req,res))
 
@@ -93,6 +94,9 @@ router.get('/calanderspecific',auth,(req,res)=>new CalenderController().GetCalen
 router.post("/staff",(req,res)=>new EmployeeController().UpsertEmployee(req,res))
 router.get("/staffs",auth,(req,res)=>new EmployeeController().GetEmployees(req,res))
 router.delete('/staff/:Id',auth,(req,res)=>new EmployeeController().DeleteEmployee(req,res))
+// router.post('/changepassword',auth,(req,res)=>new EmployeeController().ChangePassword(req,res))
+
+router.post('/changepassword',auth,(req,res)=>new EmployeeController().ChangePassword(req,res))
 
 // leave type 
 router.post("/leavetype",auth,(req,res)=>new LeaveTypeController().UpsertLeaveType(req,res))
@@ -111,6 +115,14 @@ router.post('/leave',auth,(req,res)=>new LeaveController().UpsertLeave(req,res))
 
 // Leave Status
 router.get('/leavestatus',auth,(req,res)=>new LeaveStatusController().GetLeaveStatus(req,res))
+
+// Profiles
+router.get('/profiles',auth,(req,res)=>new UserProfileController().GetUserProfile(req,res))
+
+// Dropdown List
+router.get("/dropdownlist/:dropdownName",auth, (req, res) =>  new DropdownController().GetDropdownList(req, res));
+
+
 
 app.use("/", router);
 

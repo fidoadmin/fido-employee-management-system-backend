@@ -41,7 +41,15 @@ export class RoleController {
   async UpsertRole(req,res): Promise<void> {
     try {
       const roleData = req.body;
+      if (!roleData.Name || roleData.Name.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+        return res.status(400).json({ error: result.errormessage });
+      }
       
+      if (!roleData.Code || roleData.Code.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4252 });
+        return res.status(400).json({ error: result.errormessage });
+      }
       const roleMapper = new RoleMapper();
       const mappedRole = roleMapper.DtoToModel(roleData);
       
@@ -74,6 +82,11 @@ export class RoleController {
 
       const roleService = new RoleService();
       const result = await roleService.DeleteRole(roleId);
+
+      if (result[0].result == "Already in use") {
+       const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4234,});
+       return res.status(409).json( {error:result.errormessage});
+      }
 
       return res.status(200).json();
 

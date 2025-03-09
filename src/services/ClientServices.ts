@@ -19,7 +19,7 @@ export class ClientService {
     return result;
   }
   async DeleteClient(guid: string) {
-    const query = `SELECT common.deleteclient(:varclientguid) `;
+    const query = `SELECT common.deleteclient(:varclientguid) AS result `;
 
     const result = await dbConnect.query(query, {
       replacements: { varclientguid: guid },

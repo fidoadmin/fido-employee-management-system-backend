@@ -43,6 +43,15 @@ export class PositionController {
   async UpsertPosition(req, res) {
     try {
       const positionData = req.body;
+      if (!positionData.Name || positionData.Name.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+        return res.status(400).json({ error: result.errormessage });
+      }
+      
+      if (!positionData.Code || positionData.Code.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4252 });
+        return res.status(400).json({ error: result.errormessage });
+      }
 
       const positionMapper = new PositionMapper();
       const mappedPosition = positionMapper.DtoToModel(positionData);
@@ -66,7 +75,7 @@ export class PositionController {
 
   async DeletePosition(req, res) {
     try {
-      const positionGUID = req.params.id;
+      const positionGUID = req.params.Id;
       const isGuid: boolean = await commonService.isUUID(positionGUID);
 
       if (!isGuid) {
@@ -76,6 +85,12 @@ export class PositionController {
 
       const positionService = new PositionService();
       const result = await positionService.DeletePosition(positionGUID);
+
+      if (result[0].result == "Already in use") {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4231,});
+        return res.status(409).json( {error:result.errormessage});
+      }
+
       return res.status(200).json(result);
       
     } catch (err) {

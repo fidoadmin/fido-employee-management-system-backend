@@ -43,7 +43,17 @@ export class DepartmentController {
     try {
       const departmentData = req.body;
 
+      if (!departmentData.Name || departmentData.Name.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+        return res.status(400).json({ error: result.errormessage });
+      }
       
+      if (!departmentData.Code || departmentData.Code.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4252 });
+        return res.status(400).json({ error: result.errormessage });
+      }
+      
+
       const departmentMapper = new DepartmentMapper();
       const mappedDepartment = departmentMapper.DtoToModel(departmentData);
       
@@ -58,9 +68,9 @@ export class DepartmentController {
       return res.status(200).json(result);
     } catch (error) {
      new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
-      const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-      return res.status(500).json(result.errormessage) 
-     }
+     const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+     return res.status(500).json(result.errormessage) 
+    }
   }
 
   async DeleteDepartment(req, res) {
@@ -72,11 +82,17 @@ export class DepartmentController {
         const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 404,});
         return res.status(404).json(  result.errormessage );
       }
+      
 
       const departmentService = new DepartmentService();
       const result = await departmentService.DeleteDepartment(departmentID);
 
-      return res.status(200).json();
+      if (result[0].result == "Already in use") {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4230,});
+        return res.status(409).json( {error:result.errormessage});
+      }
+
+      return res.status(200).json(result);
     }   catch (error) {
       new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
      const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});

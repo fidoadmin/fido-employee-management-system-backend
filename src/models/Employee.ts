@@ -58,6 +58,10 @@ EmployeeModel.init({
     type: DataTypes.STRING,
     allowNull: true,
   },
+  employeedetailsid: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   created: {
     type: DataTypes.DATE,
     allowNull: false,

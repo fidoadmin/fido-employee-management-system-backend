@@ -18,10 +18,7 @@ export class AuthenticationMapper {
           FirstName: userInfo.firstname,
           LastName: userInfo.lastname,
           EmailAddress: userInfo.emailaddress,
-          RoleId:null,
-          MiddleName:userInfo.lastname,
-          EmployeeId:userInfo.guid,
-
+          RoleId:null
       };
       return mapped;
   }
