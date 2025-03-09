@@ -6,21 +6,21 @@ export class AuthenticationMapper {
           clientid:data.clientid,
           source: source,
           operation :'insert'
-
-      };
+       };
       return mappedLogin;
   }
 
   
   LoginResponse(data: any,userInfo:any) {
       const mapped = {
-          UserId:userInfo.guid,
+        //   UserId:userInfo.guid,
           AuthKey: data.results,
           FirstName: userInfo.firstname,
           LastName: userInfo.lastname,
           EmailAddress: userInfo.emailaddress,
-          RoleId:null
-
+          RoleId:userInfo.roleid,
+          MiddleName:userInfo.lastname,
+          EmployeeId:userInfo.guid,
 
       };
       return mapped;

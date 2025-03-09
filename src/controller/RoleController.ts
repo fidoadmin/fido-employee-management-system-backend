@@ -28,56 +28,73 @@ export class RoleController {
 
       const roleMapper = new RoleMapper();
       const mappedroles = roleMapper.ModelToDto(roles);
+
       return res.status(200).json(mappedroles);
 
     }catch (err) {
-          await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
-          const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
-          return res.status(500).json( result.errormessage );
-        }
+      await new Logger().Error("Get Roles", err.toString(), req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+      return res.status(500).json( result.errormessage );
+     }
   }
 
   async UpsertRole(req,res): Promise<void> {
     try {
       const roleData = req.body;
-      const roleService = new RoleService();
-
+      if (!roleData.Name || roleData.Name.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+        return res.status(400).json({ error: result.errormessage });
+      }
+      
+      if (!roleData.Code || roleData.Code.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4252 });
+        return res.status(400).json({ error: result.errormessage });
+      }
       const roleMapper = new RoleMapper();
       const mappedRole = roleMapper.DtoToModel(roleData);
-
+      
+      const roleService = new RoleService();
       const result = await roleService.UpsertRole(mappedRole);
-
-              if (result[0].result == "Duplicate code") {
-               const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4092,});
-               return res.status(409).json( {error:result.errormessage});    
-              }
+      
+      if (result[0].result == "Duplicate code") {
+        const result = await commonService.GetModelData(ErrorMessageModel, {    statuscode: 4092,});
+       return res.status(409).json( {error:result.errormessage});    
+      }
 
      return res.status(200).json(result);
-    }  catch (err) {
-          await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
-          const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
-          return res.status(500).json( result.errormessage );
-        }
+    }  
+    catch (err) {
+      await new Logger().Error("Upsert Role", err.toString(), req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+      return res.status(500).json( result.errormessage );
+    }
   }
 
   async DeleteRole(req, res) {
-    try {
-      const roleId = req.params.id;
+   try {
+      const roleId = req.params.Id;
       const isGuid: boolean = await commonService.isUUID(roleId);
 
       if (!isGuid) {
         const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 404,});
-        res.status(404).json( result.errormessage );
+       res.status(404).json( result.errormessage );
       }
 
       const roleService = new RoleService();
       const result = await roleService.DeleteRole(roleId);
-      return res.status(200).json(result);
 
-    } catch (err) {
-          await new Logger().Error("GetDepartments", err.toString(), req.clientId, req.userId);
-          const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
-          return res.status(500).json( result.errormessage );
-        }
+      if (result[0].result == "Already in use") {
+       const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4234,});
+       return res.status(409).json( {error:result.errormessage});
+      }
+
+      return res.status(200).json();
+
+    } 
+    catch (err) {
+      await new Logger().Error("Delete Role", err.toString(), req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 500,});
+      return res.status(500).json( result.errormessage );
+    }
   }
 }

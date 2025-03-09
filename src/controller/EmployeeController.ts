@@ -1,9 +1,10 @@
 import { ErrorMessageModel } from "./../models/ErrorMessages";
-import { DepartmentMapper } from "./../mapper/DepartmentMapper";
 import { Logger } from "../logger/logger";
 import { CommonService } from "../common/common";
 import { EmployeeService } from "../services/EmployeeService";
 import { EmployeeMapper } from "../mapper/EmployeeMapper";
+import config from "../config";
+import EmployeeModel from "../models/Employee";
 const commonService = new CommonService();
 const bcrypt = require("bcrypt");
 
@@ -22,51 +23,148 @@ export class EmployeeController {
         sortOrder: req.query.varsortorder ? req.query.varsortorder : "asc",
         search: req.query.varsearch ? req.query.varsearch : "",
       };
+
       const employeeService = new EmployeeService();
-      const departments = await employeeService.GetEmployees(varparams);
-      const totalCount = departments.length > 0 ? departments[0].total : 0;
+      const employees = await employeeService.GetEmployees(varparams);
+
+      const totalCount = employees.length > 0 ? employees[0].total : 0;
       res.header("X-Page-TotalCount", totalCount.toString());
   
-      const departmentMapper = new EmployeeMapper();
-      const mappedDepartments = departmentMapper.ModelToDto(departments);
+      const employeeMapper = new EmployeeMapper();
+      const mappedEmployee = employeeMapper.ModelToDto(employees);
 
-      return res.status(200).json(mappedDepartments);
+      return res.status(200).json(mappedEmployee);
     }  catch (error) {
-       new Logger().Error(" Employee",error.toString(),req.clientId, req.userId);
-       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-       return res.status(500).json(result.errormessage)
-         }
+      new Logger().Error(" Employee",error.toString(),req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+      return res.status(500).json(result.errormessage)
+    }
   }
-
 
   async UpsertEmployee(req, res) {
     try {
-      const saltRounds =10;
-      const departmentData = req.body;
+
       
-   if(departmentData.password){
-     departmentData.password = await bcrypt.hash(departmentData.password,saltRounds)
-     }
+      const employeeData = req.body;
 
-      const departmentService = new EmployeeService();
-    //   const departmentMapper = new DepartmentMapper();
-    //   const mappedDepartment = departmentMapper.DtoToModel(departmentData);
-      const result = await departmentService.UpsertEmployee(departmentData);
+     const isNumeric = (value) => /^\d+$/.test(value); 
+
+     if (employeeData.Pan) {
+     if (typeof employeeData.Pan !== "string" || !isNumeric(employeeData.Pan) || (employeeData.Pan.length !== 9 && employeeData.Pan.length !== 10)) {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4242 });
+       return res.status(400).json({ error: result.errormessage });}
+      }
+
+     if (employeeData.LandlineNumber) {
+        if (typeof employeeData.LandlineNumber !== "string" || !isNumeric(employeeData.LandlineNumber) || (employeeData.LandlineNumber.length !== 9 && employeeData.LandlineNumber.length !== 10)) {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4243 });
+        return res.status(400).json({ error: result.errormessage });
+       }
+      }
+
+      if (employeeData.MobileNumber) {
+        if (typeof employeeData.MobileNumber !== "string" || !isNumeric(employeeData.MobileNumber) || employeeData.MobileNumber.length !== 10) {
+          const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4244 });
+          return res.status(400).json({ error: result.errormessage });
+        }
+      }
+
+      if ((!employeeData.FirstName && !employeeData.LastName) || (employeeData.FirstName && employeeData.FirstName.trim() === "")) {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+       return res.status(400).json({ error: result.errormessage });
+      }
+     
+ 
+      if (!employeeData.EmailAddress || employeeData.EmailAddress.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4251 });
+        return res.status(400).json({ error: result.errormessage });
+      }
+       
+     if (!employeeData.Id && (!employeeData.Password || employeeData.Password.trim() === "")) {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4253 });
+       return res.status(400).json({ error: result.errormessage });  
+      }
+            
 
 
+      
+      //  if (!employeeData.ClientId || employeeData.ClientId.trim() === "") {
+      //   const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4254 });
+      //   return res.status(400).json({ error: result.errormessage });
+      // }
 
-    if (result[0].result == "Duplicate Email") {
+
+      if(employeeData.Password){
+
+        const saltRounds = Number(config.saltKey);
+        
+        const hashedPassword = await bcrypt.hash(employeeData.Password, saltRounds);
+        employeeData.Password = hashedPassword;
+      }
+
+
+      const employeeMapper = new EmployeeMapper();
+      const mappedEmployee = employeeMapper.DtoToModel(employeeData);
+
+      const employeeService = new EmployeeService();
+      const result = await employeeService.UpsertEmployee(mappedEmployee);
+
+     if (result[0].result == "Duplicate Email") {
        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 409,});
-     return res.status(409).json( {error:result.errormessage});
+        return res.status(409).json( {error:result.errormessage});
       }
          
-    return res.status(200).json(result);
-    }     catch (error) {
-          new Logger().Error("Upsersert Employee",error.toString(),req.clientId, req.userId);
-          const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-          return res.status(500).json(result.errormessage) 
-        }
+      return res.status(200).json(result);
+    } catch (error) {
+     new Logger().Error("Upsersert Employee",error.toString(),req.clientId, req.userId);
+      const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+      return res.status(500).json(result.errormessage) 
+    }
   }
+
+  async ChangePassword(req, res) {
+    try {
+      const { Id, CurrentPassword, ChangePassword } = req.body;
+  
+      const employeeService = new EmployeeService();
+      const userData = await commonService.GetModelData(EmployeeModel, { guid: Id });
+  
+      const employee = userData; 
+      const currentPasswordHash = employee.password;
+  
+      const isPasswordCorrect = await bcrypt.compare(CurrentPassword, currentPasswordHash);
+      if (!isPasswordCorrect) {
+        return res.status(401).json({ error: "Incorrect Password" });
+      }
+  
+      const isSamePassword = await bcrypt.compare(ChangePassword, currentPasswordHash);
+      if (isSamePassword) {
+        return res.status(400).json({ error: "Cannot use the old password." });
+      }
+  
+      const saltRounds = config.saltKey ? Number(config.saltKey) : 10; 
+      const hashedPassword = await bcrypt.hash(ChangePassword, saltRounds);
+  
+      const updateData = {
+        Id: employee.guid,  
+        ChangePassword: hashedPassword, 
+      };
+  
+      const employeeMapper = new EmployeeMapper();
+      const mappedEmployee = employeeMapper.ModelPassword(updateData);
+  
+      const result = await employeeService.ChangePasswordRequest(mappedEmployee);
+  
+      return res.status(200).json(result);
+  
+    } catch (error) {
+      new Logger().Error("Change Password", error.toString(), req.clientId, req.userId);
+      const errorResponse = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500 });
+      return res.status(500).json({ error: errorResponse?.[0]?.errormessage || "Internal Server Error" });
+    }
+  }
+  
+  
 
 
   async DeleteEmployee(req, res) {
@@ -79,14 +177,15 @@ export class EmployeeController {
         return res.status(404).json(  result.errormessage );
       }
 
-      const departmentService = new EmployeeService();
-      const result = await departmentService.DeleteEmployee(employeeId);
+      const employeeService = new EmployeeService();
+      const result = await employeeService.DeleteEmployee(employeeId);
 
       return res.status(200).json();
-    }   catch (error) {
-        new Logger().Error("Delete Department",error.toString(),req.clientId, req.userId);
-        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-         return res.status(500).json(result.errormessage) 
-        }
+
+    }catch (error) {
+     new Logger().Error("Delete Employee",error.toString(),req.clientId, req.userId);
+     const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
+     return res.status(500).json(result.errormessage) 
+    }
   }
 }

@@ -13,6 +13,10 @@ import { EmployeeController } from "./controller/EmployeeController";
 import { CalenderController } from "./controller/CalenderController";
 import { LeaveTypeController } from "./controller/LeaveTypeController";
 import { CompanyHolidayController } from "./controller/CompanyHolidayController";
+import { LeaveController } from "./controller/LeaveController";
+import { LeaveStatusController } from "./controller/LeaveStatusController";
+import { UserProfileController } from "./controller/UserProfileController";
+import { DropdownController } from "./controller/DropdownController";
 const sequelize = require("./connect/index");
 const app = express();
 const port = config.port || 7000;
@@ -22,8 +26,7 @@ app.use(bodyParser.json());
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "http://10.10.1.119:3004",
-    "http://10.10.1.117:3000",
+  
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -54,7 +57,6 @@ router.post('/login',(req,res)=>new AuthenticationController().Login(req,res))
 router.put('/logout',(req,res)=>new AuthenticationController().Logout(req,res))
 
 // Clients
-router.get("/clients", auth,(req, res) =>  new ClientController().GetClients(req, res));
 router.get("/clients", auth,(req, res) =>  new ClientController().GetClients(req, res));
 router.post("/client",auth, (req, res) =>new ClientController().UpsertClient(req, res));
 router.delete("/client/:Id",auth,(req,res)=>new ClientController().DeleteClient(req,res))
@@ -91,22 +93,33 @@ router.get('/calanderspecific',auth,(req,res)=>new CalenderController().GetCalen
 router.post("/staff",(req,res)=>new EmployeeController().UpsertEmployee(req,res))
 router.get("/staffs",auth,(req,res)=>new EmployeeController().GetEmployees(req,res))
 router.delete('/staff/:Id',auth,(req,res)=>new EmployeeController().DeleteEmployee(req,res))
+// router.post('/changepassword',auth,(req,res)=>new EmployeeController().ChangePassword(req,res))
+
+router.post('/changepassword',auth,(req,res)=>new EmployeeController().ChangePassword(req,res))
 
 // leave type 
 router.post("/leavetype",auth,(req,res)=>new LeaveTypeController().UpsertLeaveType(req,res))
 router.get("/leavetypes",auth,(req,res)=>new LeaveTypeController().GetLeaveTypes(req,res))
 router.delete('/leavetype/:Id',auth,(req,res)=>new LeaveTypeController().DeleteLeaveType(req,res))
 
-// Company 
-// router.get("/companies",auth,(req,res)=>new CompanyController().UpsertCompany(req,res))
-// router.post("/company",auth,(req,res)=>new CompanyController().UpsertCompany(req,res))
 
 // Company Holiday
 router.post('/companyholiday',auth,(req,res)=>new CompanyHolidayController().UpsertCompanyHoliday(req,res))
 router.get('/companyholidays',auth,(req,res) => new CompanyHolidayController().GetCompanyHoliday(req,res))
 router.delete('/companyholiday/:Id',auth,(req,res)=> new CompanyHolidayController().DeleteCompanyHoliday(req,res))
 
+// Leave
+router.get('/leaves',auth,(req,res)=>new LeaveController().GetLeaves(req,res))
+router.post('/leave',auth,(req,res)=>new LeaveController().UpsertLeave(req,res))
 
+// Leave Status
+router.get('/leavestatus',auth,(req,res)=>new LeaveStatusController().GetLeaveStatus(req,res))
+
+// Profiles
+router.get('/profiles',auth,(req,res)=>new UserProfileController().GetUserProfile(req,res))
+
+// Dropdown List
+router.get("/dropdownlist/:dropdownName",auth, (req, res) =>  new DropdownController().GetDropdownList(req, res));
 
 
 

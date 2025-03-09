@@ -30,16 +30,26 @@ export class ClientController {
       const mappedClient = clientMapper.ModelToDto(clients);
 
       return res.status(200).json(mappedClient);
+      
     } catch (error) {
-      new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+      new Logger().Error("Get Clients",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-      res.status(500).json(result.errormessage)
-     }
+      return  res.status(500).json(result.errormessage)
+    }
   }
 
   async UpsertClient(req, res) {
     try {
       const clientData = req.body;
+      if (!clientData.Name || clientData.Name.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+        return res.status(400).json({ error: result.errormessage });
+      }
+      
+      if (!clientData.Code || clientData.Code.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4252 });
+        return res.status(400).json({ error: result.errormessage });
+      }
 
       const clientMapper = new ClientMapper();
       const mappedClient = clientMapper.DtoToModel(clientData);
@@ -54,15 +64,15 @@ export class ClientController {
 
       return res.status(200).json(result);
     }catch (error) {
-      new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+      new Logger().Error("Upsersert Client",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-      res.status(500).json(result.errormessage)
+      return res.status(500).json(result.errormessage)
      }
   }
 
   async DeleteClient(req, res) {
     try {
-      const clientId = req.params.id;
+      const clientId = req.params.Id;
       const isGuid: boolean = await commonService.isUUID(clientId);
 
       if (!isGuid) {
@@ -72,12 +82,17 @@ export class ClientController {
 
       const departmentService = new ClientService();
       const result = await departmentService.DeleteClient(clientId);
+      
+      if (result[0].result == "Already in use") {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4232,});
+        return res.status(409).json( {error:result.errormessage});
+      }
 
       return res.status(200).json();
     } catch (error) {
-      new Logger().Error("Upsersert Department",error.toString(),req.clientId, req.userId);
+      new Logger().Error("Delete Client",error.toString(),req.clientId, req.userId);
       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500,});
-      res.status(500).json(result.errormessage)
+      return res.status(500).json(result.errormessage)
      }
-      }
+  }
 }
