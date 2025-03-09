@@ -16,6 +16,7 @@ import { CompanyHolidayController } from "./controller/CompanyHolidayController"
 import { LeaveController } from "./controller/LeaveController";
 import { LeaveStatusController } from "./controller/LeaveStatusController";
 import { UserProfileController } from "./controller/UserProfileController";
+import { DropdownController } from "./controller/DropdownController";
 const sequelize = require("./connect/index");
 const app = express();
 const port = config.port || 7000;
@@ -113,7 +114,14 @@ router.post('/leave',auth,(req,res)=>new LeaveController().UpsertLeave(req,res))
 
 // Leave Status
 router.get('/leavestatus',auth,(req,res)=>new LeaveStatusController().GetLeaveStatus(req,res))
+
+// Profiles
 router.get('/profiles',auth,(req,res)=>new UserProfileController().GetUserProfile(req,res))
+
+// Dropdown List
+router.get("/dropdownlist/:dropdownName",auth, (req, res) =>  new DropdownController().GetDropdownList(req, res));
+
+
 
 app.use("/", router);
 

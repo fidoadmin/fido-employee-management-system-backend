@@ -40,24 +40,46 @@ export class CompanyController {
   async UpsertCompany(req, res) {
     try {
       const companyData = req.body;
+      const isNumeric = (value) => /^\d+$/.test(value); 
 
-      if (companyData.Pan && companyData.Pan.length !== 9 && companyData.Pan.length !== 10) {
-        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4242 });
-        res.status(400).json({ error: result.errormessage });
-        return;
-      };
-    
-     if (companyData.LandlineNumber && companyData.LandlineNumber.length !== 9 && companyData.LandlineNumber.length !== 10) {
+
+     if (companyData.Pan) {
+     if (typeof companyData.Pan !== "string" || !isNumeric(companyData.Pan) || (companyData.Pan.length !== 9 && companyData.Pan.length !== 10)) {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4242 });
+       return res.status(400).json({ error: result.errormessage });}
+      }
+
+     if (companyData.LandlineNumber) {
+        if (typeof companyData.LandlineNumber !== "string" || !isNumeric(companyData.LandlineNumber) || (companyData.LandlineNumber.length !== 9 && companyData.LandlineNumber.length !== 10)) {
         const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4243 });
-        res.status(400).json({ error: result.errormessage });
-        return;
-      };
+        return res.status(400).json({ error: result.errormessage });
+       }
+      }
 
-     if (companyData.MobileNumber && companyData.MobileNumber.length !== 10) {
-        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4244 });
-        res.status(400).json({ error: result.errormessage });
-        return;
-     };
+      if (companyData.MobileNumber) {
+        if (typeof companyData.MobileNumber !== "string" || !isNumeric(companyData.MobileNumber) || companyData.MobileNumber.length !== 10) {
+          const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4244 });
+          return res.status(400).json({ error: result.errormessage });
+        }
+      }
+
+     if (!companyData.Name || companyData.Name.trim() === "") {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+       return res.status(400).json({ error: result.errormessage });
+     }
+     
+     if (!companyData.EmailAddress || companyData.EmailAddress.trim() === "") {
+      const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4251 });
+      return res.status(400).json({ error: result.errormessage });
+     }
+
+
+     if (!companyData.Id && (!companyData.Code || companyData.Code.trim() === "")) {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4252 });
+       return res.status(400).json({ error: result.errormessage });  
+      }
+
+     
 
       const companyMapper = new CompanyMapper();
       const mappedCompany = companyMapper.DtoToModel(companyData);
@@ -96,11 +118,16 @@ export class CompanyController {
       const companyService = new CompanyService();
       const result = await companyService.DeleteCompany(companyGUID);
 
+      if (result[0].result == "Already in use") {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4233,});
+        return res.status(409).json( {error:result.errormessage});
+      }
+
       return res.status(200).json(result);
     } catch (err) {
-          await new Logger().Error("Delete Company ", err.toString(), req.clientId, req.userId);
-          const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500 });
-          return res.status(500).json(result.errormessage);
-        }
+     await new Logger().Error("Delete Company ", err.toString(), req.clientId, req.userId);
+     const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500 });
+     return res.status(500).json(result.errormessage);
+    }
   }
 }

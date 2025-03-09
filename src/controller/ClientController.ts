@@ -41,6 +41,15 @@ export class ClientController {
   async UpsertClient(req, res) {
     try {
       const clientData = req.body;
+      if (!clientData.Name || clientData.Name.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+        return res.status(400).json({ error: result.errormessage });
+      }
+      
+      if (!clientData.Code || clientData.Code.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4252 });
+        return res.status(400).json({ error: result.errormessage });
+      }
 
       const clientMapper = new ClientMapper();
       const mappedClient = clientMapper.DtoToModel(clientData);
@@ -73,6 +82,11 @@ export class ClientController {
 
       const departmentService = new ClientService();
       const result = await departmentService.DeleteClient(clientId);
+      
+      if (result[0].result == "Already in use") {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4232,});
+        return res.status(409).json( {error:result.errormessage});
+      }
 
       return res.status(200).json();
     } catch (error) {

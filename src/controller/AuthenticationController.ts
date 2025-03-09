@@ -15,13 +15,27 @@ export class AuthenticationController {
   async Login(req, res) {
     try {
       const loginBody = req.body;
-      const userData = await commonService.GetModelData(EmployeeModel, {emailaddress: loginBody.EmailAddress, });
+
+      const userData = await commonService.GetModelData(EmployeeModel, {
+        emailaddress: loginBody.EmailAddress,
+      });
+      
+      if (!userData || userData.deleted !== null) {
+        return res.status(400).json({ error: "user not found or deleted" });
+      }
+      
+      
+      
+
+      
 
       if (!userData) {
         const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4221,});
         return  res.status(404).json({ error: result?.errormessage || "Email Address not found" });
       }
 
+
+      
       const match = await bcrypt.compare(loginBody.Password, userData.password);
       
       if (match) {

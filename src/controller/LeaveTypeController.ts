@@ -76,6 +76,11 @@ export class LeaveTypeController {
       const leaveTypeService = new LeaveTypeService();
       const result = await leaveTypeService.DeleteLeaveType(leaveTypeId);
 
+      if (result[0].result == "Already in use") {
+        const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4235,});
+        return res.status(409).json( {error:result.errormessage});
+      }
+
       return res.status(200).json();
     } catch (error) {
       new Logger().Error("Delete Leave type",error.toString(),req.clientId, req.userId);

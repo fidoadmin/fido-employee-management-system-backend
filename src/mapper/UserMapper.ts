@@ -7,7 +7,8 @@ export class UserMapper {
             LastName: user.lastname ?? null,
             Address: user.address ?? null,
             EmailAddress: user.emailaddress ?? null,
-            PhoneNumber: user.phonenumber ?? null,
+            MobileNumber: user.mobilenumber ?? null,
+            LandlineNumber:user.landlinenumber?? null,
             StaffNumber: user.staffnumber ?? null,
             ClientName: user.clientname ?? null,
             RoleName: user.rolename ?? null,
@@ -34,6 +35,9 @@ export class UserMapper {
             departmentid: user.DepartmentId ?? null,
             companyid: user.CompanyId ?? null,
             positionid: user.PositionId ?? null, 
+            mobilenumber:user.MobileNumber ?? null,
+            landlinenumber:user.LandlineNumber ?? null,
+            
         };
     }
 

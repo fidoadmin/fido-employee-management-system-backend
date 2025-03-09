@@ -47,6 +47,52 @@ export class EmployeeController {
       
       const employeeData = req.body;
 
+     const isNumeric = (value) => /^\d+$/.test(value); 
+
+     if (employeeData.Pan) {
+     if (typeof employeeData.Pan !== "string" || !isNumeric(employeeData.Pan) || (employeeData.Pan.length !== 9 && employeeData.Pan.length !== 10)) {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4242 });
+       return res.status(400).json({ error: result.errormessage });}
+      }
+
+     if (employeeData.LandlineNumber) {
+        if (typeof employeeData.LandlineNumber !== "string" || !isNumeric(employeeData.LandlineNumber) || (employeeData.LandlineNumber.length !== 9 && employeeData.LandlineNumber.length !== 10)) {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4243 });
+        return res.status(400).json({ error: result.errormessage });
+       }
+      }
+
+      if (employeeData.MobileNumber) {
+        if (typeof employeeData.MobileNumber !== "string" || !isNumeric(employeeData.MobileNumber) || employeeData.MobileNumber.length !== 10) {
+          const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4244 });
+          return res.status(400).json({ error: result.errormessage });
+        }
+      }
+
+      if ((!employeeData.FirstName && !employeeData.LastName) || (employeeData.FirstName && employeeData.FirstName.trim() === "")) {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4250 });
+       return res.status(400).json({ error: result.errormessage });
+      }
+     
+ 
+      if (!employeeData.EmailAddress || employeeData.EmailAddress.trim() === "") {
+        const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4251 });
+        return res.status(400).json({ error: result.errormessage });
+      }
+       
+     if (!employeeData.Id && (!employeeData.Password || employeeData.Password.trim() === "")) {
+       const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4253 });
+       return res.status(400).json({ error: result.errormessage });  
+      }
+            
+
+
+      
+      //  if (!employeeData.ClientId || employeeData.ClientId.trim() === "") {
+      //   const result = await commonService.GetModelData(ErrorMessageModel, { statuscode: 4254 });
+      //   return res.status(400).json({ error: result.errormessage });
+      // }
+
 
       if(employeeData.Password){
 
@@ -78,48 +124,46 @@ export class EmployeeController {
 
   async ChangePassword(req, res) {
     try {
-      const passwordData = req.body;
+      const { Id, CurrentPassword, ChangePassword } = req.body;
+  
       const employeeService = new EmployeeService();
+      const userData = await commonService.GetModelData(EmployeeModel, { guid: Id });
   
-      const userData = await commonService.GetModelData(EmployeeModel, { Id: passwordData.Id });
+      const employee = userData; 
+      const currentPasswordHash = employee.password;
   
-      if (!userData || userData.length === 0) {
-        return res.status(404).json({ error: "Employee Not Found" });
-      }
-  
-      const currentPasswordHash = userData[0].password;
-  
-      const isPasswordCorrect = await bcrypt.compare(passwordData.CurrentPassword, currentPasswordHash);
+      const isPasswordCorrect = await bcrypt.compare(CurrentPassword, currentPasswordHash);
       if (!isPasswordCorrect) {
         return res.status(401).json({ error: "Incorrect Password" });
       }
   
-      const isSamePassword = await bcrypt.compare(passwordData.ChangePassword, currentPasswordHash);
+      const isSamePassword = await bcrypt.compare(ChangePassword, currentPasswordHash);
       if (isSamePassword) {
         return res.status(400).json({ error: "Cannot use the old password." });
       }
   
-      const saltRounds = Number(config.saltKey);
-      const hashedPassword = await bcrypt.hash(passwordData.ChangePassword, saltRounds);
+      const saltRounds = config.saltKey ? Number(config.saltKey) : 10; 
+      const hashedPassword = await bcrypt.hash(ChangePassword, saltRounds);
   
       const updateData = {
-        id: userData[0].id, 
-        password: hashedPassword
+        Id: employee.guid,  
+        ChangePassword: hashedPassword, 
       };
   
       const employeeMapper = new EmployeeMapper();
-      const mappedEmployee = employeeMapper.DtoToModel(updateData);
-      
+      const mappedEmployee = employeeMapper.ModelPassword(updateData);
+  
       const result = await employeeService.ChangePasswordRequest(mappedEmployee);
   
-      return res.status(200).json({ message: "Password updated successfully." });
+      return res.status(200).json(result);
   
     } catch (error) {
       new Logger().Error("Change Password", error.toString(), req.clientId, req.userId);
       const errorResponse = await commonService.GetModelData(ErrorMessageModel, { statuscode: 500 });
-      return res.status(500).json({ error: errorResponse.errormessage });
+      return res.status(500).json({ error: errorResponse?.[0]?.errormessage || "Internal Server Error" });
     }
   }
+  
   
 
 
