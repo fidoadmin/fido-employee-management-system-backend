@@ -5,8 +5,12 @@ export class DepartmentMapper {
         Id: department.guid,
         Name: department.name,
         Code:department.code?department.code:null,
+        SubDepartmentName:department.subdepartmentname ? department.subdepartmentname :null,
+        ClientName:department.clientname ? department.clientname:null,
         Created: department.created ? department.created : null,
         Modified: department.modified ? department.modified : null,
+        ClientId:department.clientid? department.clientid:null,
+        ParentId:department.parentid? department.parentid:null
       };
       {
         return mappedBranch;
@@ -19,7 +23,10 @@ export class DepartmentMapper {
     const mappedBranch = {
       guid: department.Id,
       name: department.Name,
-      code:department.Code
+      code:department.Code,
+      parentid:department.ParentId,
+      clientid:department.ClientId,
+      subdepartmentguid:department.SubDepartmentId
     };
     return mappedBranch;
   }
