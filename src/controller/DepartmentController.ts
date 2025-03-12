@@ -19,6 +19,8 @@ export class DepartmentController {
         sortBy: req.query.varsortby ? req.query.varsortby : "name",
         sortOrder: req.query.varsortorder ? req.query.varsortorder : "asc",
         search: req.query.varsearch ? req.query.varsearch : "",
+        parentid:req.query.parentid ? req.query.parentid : null,
+        clientid:req.query.clientid ? req.query.clientid:null
       };
 
       const departmentService = new DepartmentService();
@@ -61,9 +63,14 @@ export class DepartmentController {
       const result = await departmentService.UpsertDepartment(mappedDepartment);
 
       if (result[0].result == "Duplicate code") {
-      const result = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4092,});
-      return res.status(409).json( {error:result.errormessage});
+      const errorResult = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4092,});
+      return res.status(409).json( {error:errorResult.errormessage});
       }
+
+      if (result[0].result =="Duplicate name") {
+        const errorResult = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4091,});
+        return res.status(409).json( {error:errorResult.errormessage});
+        }
          
       return res.status(200).json(result);
     } catch (error) {
