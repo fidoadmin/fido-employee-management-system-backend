@@ -52,6 +52,11 @@ export class CompanyHolidayController {
       const companyHolidayService = new CompanyHolidayService();
       const result = await companyHolidayService.UpsertCompanyHoliday(mappedCompanyHoliday);
 
+      if (result[0].result == "Holiday already exists!") {
+        const errorResult = await commonService.GetModelData(ErrorMessageModel, {statuscode: 4093,});
+        return res.status(409).json( {error:errorResult.errormessage});
+      }
+
       return res.status(200).json(result);
 
     } catch (err) {
